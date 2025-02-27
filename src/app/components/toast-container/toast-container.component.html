@@ -1,0 +1,18 @@
+<div *ngFor="let toast of toasts" class="fixed top-0 right-0 m-4 space-y-4 z-100">
+  <div [ngClass]="{
+      'bg-green-500': toast.type === 'success',
+      'bg-red-500': toast.type === 'error'
+    }"
+       class="toast text-white p-4 rounded-lg shadow-lg flex items-center space-x-4 transition-all duration-500 transform hover:scale-105">
+
+    <div class="flex-1">
+      <p class="text-sm">{{ toast.message }}</p>
+    </div>
+    <button class="text-white" (click)="toasts.shift()">
+      <!-- Ícone de Fechar -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+</div>
