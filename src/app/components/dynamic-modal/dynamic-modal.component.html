@@ -1,0 +1,47 @@
+<div *ngIf="show" class="fixed inset-0 flex items-center justify-center z-50">
+  <div class="absolute inset-0 bg-[#0000002e] backdrop-blur-sm"></div>
+
+  <div class="relative bg-white p-6 rounded-lg shadow-lg w-4/5 max-w-none z-10">
+    <h2 class="text-xl font-bold mb-4">{{ title }}</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div *ngFor="let field of fields">
+        <label class="block text-gray-700">{{ field.label }}</label>
+        <ng-container [ngSwitch]="field.type">
+          <input *ngSwitchCase="'text'" [name]="field.name" [placeholder]="field.placeholder" [(ngModel)]="field.value"
+                 class="border border-gray-300 rounded-md px-4 py-2 w-full"
+                 [appMask]="field.label === 'CPF' ? 'cpf' : (field.label === 'Phone' ? 'phone' : '')"
+                 [maxlength]="field.label === 'CPF' ? 14 : null" required />
+
+          <input *ngSwitchCase="'tel'" [name]="field.name" [placeholder]="field.placeholder" [(ngModel)]="field.value" type="tel"
+                 class="border border-gray-300 rounded-md px-4 py-2 w-full"
+                 [appMask]="'phone'"
+                 maxlength="15" required />
+
+          <input *ngSwitchCase="'date'" [name]="field.name" [(ngModel)]="field.value" type="date"
+                 class="border border-gray-300 rounded-md px-4 py-2 w-full" required />
+
+          <input *ngSwitchCase="'email'" [name]="field.name" [placeholder]="field.placeholder" [(ngModel)]="field.value" type="email"
+                 class="border border-gray-300 rounded-md px-4 py-2 w-full" required />
+
+          <div *ngSwitchCase="'radio'" class="flex items-center space-x-4">
+            <label *ngFor="let option of field.options">
+              <input type="radio" name="status" [(ngModel)]="field.value" [value]="option.value" class="mr-2" required>
+              {{ option.label }}
+            </label>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="flex justify-end space-x-2 mt-4">
+      <button (click)="closeModal()" class="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 transition">
+        Cancelar
+      </button>
+      <button (click)="saveData()"
+              class="px-4 py-2 bg-[#38b593] text-white rounded-md hover:bg-[#2a9577] transition">
+        Salvar
+      </button>
+    </div>
+  </div>
+</div>
