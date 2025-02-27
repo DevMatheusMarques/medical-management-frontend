@@ -1,0 +1,8 @@
+<app-data-table [title]="'Médicos'" [columns]="doctorsColumns" [data]="doctorData" [selectedTab]="'Médico'">></app-data-table>
+<app-dynamic-modal
+  [title]="modalTitle"
+  [fields]="modalFields"
+  [show]="showModal"
+  (close)="showModal = false"
+  (submit)="addRecord($event)">
+</app-dynamic-modal>
