@@ -1,0 +1,96 @@
+<aside
+  [ngClass]="{
+        'w-[70px]': isCollapsed,
+        'w-[250px]': !isCollapsed,
+        'bg-black text-white': isDark,
+        'bg-white text-black': !isDark
+      }"
+  class="fixed top-0 left-0 h-screen transition-all duration-300 flex flex-col text-gray-800 shadow-xl"
+>
+  <!-- Logo -->
+  <div class="p-4 flex items-center justify-center pt-10 pb-10">
+    <div class="flex items-center justify-center ">
+      <img
+        ngSrc="assets/images/logotipo.png"
+        alt="Logotipo do Sistema"
+        class="w-10 h-10 rounded-full"
+        height="500" width="500">
+      <span *ngIf="!isCollapsed" class="ml-3 text-lg font-bold text-[#38b593] text-center">HealthSync<br>Agendamentos</span>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="px-4 mb-6">
+    <div class="flex items-center bg-gray-100 rounded-md p-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <input *ngIf="!isCollapsed" type="text" placeholder="Search" class="bg-transparent ml-2 outline-none w-full text-sm">
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="flex-1">
+    <ng-container *ngFor="let item of menuItems">
+      <a
+        [routerLink]="item.route"
+        routerLinkActive="bg-[#38b593] text-white"
+        class="flex items-center px-4 py-3 text-sm transition-colors"
+        [ngClass]="{
+          'justify-center': isCollapsed,
+          'hover:bg-gray-200': !isActive(item.route)
+        }"
+      >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="getIconPath(item.icon)" />
+        </svg>
+        <span *ngIf="!isCollapsed" class="ml-3">{{item.label}}</span>
+      </a>
+    </ng-container>
+  </nav>
+
+  <!-- Logout Option -->
+  <a
+    (click)="logout()"
+    class="flex items-center px-4 py-3 text-sm transition-colors text-red-600 cursor-pointer"
+    [ngClass]="{
+    'justify-center': isCollapsed,
+    'hover:bg-red-100': !isCollapsed
+  }"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6-8v16"/>
+    </svg>
+    <span *ngIf="!isCollapsed" class="ml-3 font-semibold">Sair</span>
+  </a>
+
+
+  <!-- User Profile -->
+  <div class="p-4 border-t border-gray-200 flex items-center">
+    <div
+      class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
+      [ngClass]="{'bg-[#38b593]': true}"
+    >
+      {{ getInitials(username) }}
+    </div>
+    <div *ngIf="!isCollapsed" class="ml-3">
+      <p class="text-sm font-medium">{{ username }}</p>
+      <p class="text-xs text-gray-500">Ver perfil</p>
+    </div>
+  </div>
+
+  <!-- Collapse Toggle -->
+  <button
+    (click)="toggleCollapse()"
+    class="absolute -right-3 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-white shadow-lg flex items-center justify-center cursor-pointer"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      [class]="'h-4 w-4 transform ' + (isCollapsed ? '' : 'rotate-180')"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+    >
+      <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+    </svg>
+  </button>
+</aside>
