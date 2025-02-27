@@ -1,0 +1,90 @@
+<div class="container mx-auto p-6">
+  <h1 class="text-2xl font-bold mb-6">{{ title }}</h1>
+
+  <div class="flex justify-between items-center mb-4">
+    <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar..."
+           class="border border-gray-300 rounded-md px-4 py-2 w-1/3" />
+    <button (click)="openModal()"
+            class="bg-[#38b593] text-white px-4 py-2 rounded-md hover:bg-[#2a9577] transition cursor-pointer">
+      + Adicionar {{ selectedTab }}
+    </button>
+  </div>
+
+  <!-- Your table content here -->
+
+  <app-dynamic-modal
+    [title]="modalTitle"
+    [fields]="modalFields"
+    [show]="showModal"
+    (close)="closeModal()"
+    (submit)="handleSubmit()">
+  </app-dynamic-modal>
+
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full">
+      <!-- Table Header -->
+      <thead class="bg-gray-50">
+      <tr>
+        <th *ngFor="let column of columns" class="px-4 py-3 text-left text-sm font-medium text-gray-600">
+          {{ column.header }}
+        </th>
+      </tr>
+      </thead>
+
+      <!-- Table Body -->
+      <tbody class="divide-y divide-gray-200">
+      <tr *ngFor="let item of paginatedData" class="hover:bg-gray-50">
+        <td *ngFor="let column of columns" class="px-4 py-4 text-sm">
+          <ng-container [ngSwitch]="column.type">
+              <span *ngSwitchCase="'status'" [class]="'px-3 py-1 rounded-full ' + getStatusClass(item[column.key])">
+                {{ item[column.key] }}
+              </span>
+            <div *ngSwitchCase="'action'" class="flex space-x-3">
+              <button (click)="onEdit(item)" class="text-[#38b593] hover:text-[#2a9577] cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+              <button (click)="onDelete(item)" class="text-red-500 hover:text-red-700 cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+            <span *ngSwitchDefault>{{ item[column.key] }}</span>
+          </ng-container>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200">
+      <div class="text-sm text-gray-500">
+        Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} a
+        {{ Math.min(currentPage * itemsPerPage, filteredData.length) }} de
+        {{ filteredData.length }} pacientes cadastrados
+      </div>
+      <div class="flex space-x-1">
+        <button [disabled]="currentPage === 1"
+                (click)="currentPage = currentPage - 1"
+                class="px-3 py-1 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200 cursor-pointer">
+          Anterior
+        </button>
+        <button *ngFor="let page of pages"
+                [class.bg-[#38b593]]="page === currentPage"
+                [class.text-white]="page === currentPage"
+                [class.hover:bg-gray-200]="page !== currentPage"
+                (click)="currentPage = page"
+                class="px-3 py-1 rounded-md text-sm font-medium hover:bg-gray-200 cursor-pointer">
+          {{page}}
+        </button>
+        <button [disabled]="currentPage === pages.length"
+                (click)="currentPage = currentPage + 1"
+                class="px-3 py-1 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200 cursor-pointer">
+          Próximo
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
