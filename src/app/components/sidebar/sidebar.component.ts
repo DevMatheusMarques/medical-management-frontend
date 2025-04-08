@@ -1,6 +1,10 @@
 import {Component, EventEmitter, Output} from '@angular/core';
 import {Router, RouterLink, RouterLinkActive} from '@angular/router';
 import {NgClass, NgForOf, NgIf, NgOptimizedImage} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {HttpClient, HttpClientModule, HttpHeaders} from '@angular/common/http';
+import {debounceTime, Observable, Subject, switchMap} from 'rxjs';
+import {ToastService} from '../../shared/services/toast.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -10,7 +14,9 @@ import {NgClass, NgForOf, NgIf, NgOptimizedImage} from '@angular/common';
     RouterLinkActive,
     NgForOf,
     NgIf,
-    NgOptimizedImage
+    NgOptimizedImage,
+    FormsModule,
+    HttpClientModule
   ],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
@@ -18,26 +24,66 @@ import {NgClass, NgForOf, NgIf, NgOptimizedImage} from '@angular/common';
 export class SidebarComponent {
   isCollapsed = false;
   isDark = false;
-  username: string = '';  // Variável para armazenar o nome do usuário
+  username: string = '';
+  role: string = '';
+  menuItems: { label: string; route: string; icon: string }[] = [];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private http: HttpClient, private toastService: ToastService) {
+    this.searchSubject.pipe(
+      debounceTime(800),  // Espera 800ms após o último evento
+      switchMap(term => this.askAIQuestion(term))  // Faz a requisição com o termo filtrado
+    ).subscribe(
+      response => {
+        this.aiAnswer = response.answer;
+        this.filteredFaqItems = [];
+      },
+      error => {
+        this.aiAnswer = 'Houve um erro ao tentar buscar a resposta. Por favor, tente novamente.';
+        this.toastService.showToast("Houve um erro ao tentar buscar a resposta. Por favor, tente novamente.", 'error');
+        setTimeout(() => {
+          this.aiAnswer = '';
+        }, 5000);
+      }
+    );
+  }
 
   @Output() collapsedChange = new EventEmitter<boolean>();
 
-  ngOnInit(): void {
-    // Recupera o nome do usuário do localStorage
-    this.username = localStorage.getItem('authUsername') || 'Usuário';
-  }
-
-  menuItems = [
-    { label: 'Dashboard', route: '/dashboard', icon: 'home' },
-    { label: 'Consultas', route: '/consultations', icon: 'calendar' },
-    { label: 'Pacientes', route: '/patients', icon: 'patient' },
-    { label: 'Médicos', route: '/doctors', icon: 'stethoscope' },
-    { label: 'Usuários', route: '/users', icon: 'users' },
-    { label: 'Relatórios', route: '/progress', icon: 'chart' },
-    { label: 'Configurações', route: '/settings', icon: 'cog' }
+  faqItems: { question: string; answer: string }[] = [
+    { question: 'Como cancelar uma consulta?', answer: 'Vá até a aba Consultas, clique no botão de editar da consulta desejada e depois altere o status para cancelada.' },
+    { question: 'Horário de atendimento?', answer: 'Nosso horário é das 8h às 18h, de segunda a sexta.' },
+    { question: 'Como editar perfil?', answer: 'Clique na sua foto no canto superior e selecione "Editar Perfil".' },
+    { question: 'Posso reagendar uma consulta?', answer: 'Sim, basta acessar a consulta desejada, clicar no botão de editar e efetuar a alteração da data e horário da consulta.' },
   ];
+
+
+  searchTerm: string = '';
+  filteredFaqItems: { question: string; answer: string }[] = [];
+  aiAnswer: string | null = null;
+
+  private apiUrl = 'http://localhost:8080/api/faq/ask';
+  private searchSubject = new Subject<string>();
+
+  ngOnInit(): void {
+    this.username = localStorage.getItem('authUsername') || 'Usuário';
+    this.role = localStorage.getItem('authRole') || 'Usuário';
+
+    this.menuItems = [
+      { label: 'Dashboard', route: '/dashboard', icon: 'home' },
+      { label: 'Consultas', route: '/consultations', icon: 'calendar' },
+      { label: 'Pacientes', route: '/patients', icon: 'patient' },
+      { label: 'Médicos', route: '/doctors', icon: 'stethoscope' },
+    ];
+
+    if (this.role === 'Administrador') {
+      this.menuItems.push(
+        { label: 'Usuários', route: '/users', icon: 'users' },
+        { label: 'Relatórios', route: '/progress', icon: 'chart' },
+      );
+    }
+
+    this.menuItems.push({ label: 'Configurações', route: '/settings', icon: 'cog' },);
+  }
 
   toggleCollapse(): void {
     this.isCollapsed = !this.isCollapsed;
@@ -74,7 +120,26 @@ export class SidebarComponent {
   }
 
   logout(): void {
-    localStorage.removeItem('authUsername'); // Remove usuário autenticado
-    this.router.navigate(['']); // Redireciona para a tela de login
+    localStorage.removeItem('authUsername');
+    localStorage.removeItem('authRole');
+    this.router.navigate(['']);
+  }
+
+  askAIQuestion(question: string): Observable<any> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.post<any>(this.apiUrl, { question }, { headers });
+  }
+
+  filterFAQ() {
+    const term = this.searchTerm.toLowerCase();
+    this.filteredFaqItems = this.faqItems.filter(item =>
+      item.question.toLowerCase().includes(term)
+    );
+
+    // Se não encontrar na FAQ, consulta a IA
+    if (this.filteredFaqItems.length === 0) {
+      this.searchSubject.next(this.searchTerm);  // Envia o termo para o Subject, disparando a busca com IA
+    }
   }
 }
