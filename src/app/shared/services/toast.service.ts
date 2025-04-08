@@ -18,7 +18,7 @@ export class ToastService {
   constructor() { }
 
   // Método para exibir o toast
-  showToast(message: string, type: 'success' | 'error', duration: number = 3000) {
+  showToast(message: string, type: 'success' | 'error', duration: number = 4000) {
     this.toastSubject.next({ message, type, duration });
 
     // Fechar o toast automaticamente após a duração
