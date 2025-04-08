@@ -2,7 +2,6 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MaskDirective } from '../../shared/directives/mask.directive';
-import {ToastService} from '../../shared/services/toast.service';
 
 @Component({
   selector: 'app-dynamic-modal',
@@ -14,28 +13,25 @@ export class DynamicModalComponent {
   @Input() title: string = '';
   @Input() fields: any[] = [];
   @Input() show: boolean = false;
+  @Input() isViewMode: boolean = false;
   @Output() close = new EventEmitter<void>();
-  @Output() submit = new EventEmitter<any>();
-
-  formData: any = {};
-
-  constructor(private toastService: ToastService) { }
+  @Output() submit = new EventEmitter<void>();
+  @Output() submitEdit = new EventEmitter<void>();
+  @Output() onSearchInput = new EventEmitter<void>();
+  showPassword: boolean = false;
 
   closeModal() {
     this.close.emit();
   }
 
-  saveData() {
-    const allFieldsFilled = this.fields.every(field => field.value && field.value !== '');
+  onSaveClick() {
+    const isAdding = ['Adicionar Paciente', 'Adicionar Médico', 'Adicionar Consulta', 'Adicionar Usuário'].includes(this.title);
 
-    if (!allFieldsFilled) {
-      this.toastService.showToast('Todos os campos precisam estar preenchidos!', 'error');
-      return;
-    }
-
-    this.submit.emit(this.formData);
-    console.log('Dados saveData: ', this.formData);
-    this.closeModal();
-    this.toastService.showToast('Paciente cadastrado com sucesso!', 'success');
+    isAdding ? this.submit.emit() : this.submitEdit.emit();
   }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
 }
