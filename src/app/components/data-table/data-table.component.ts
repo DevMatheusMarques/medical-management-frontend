@@ -1,13 +1,13 @@
-import { Component, Input, OnInit, HostListener, AfterViewInit, ElementRef } from '@angular/core';
-import {NgForOf, NgSwitch, NgSwitchCase, NgSwitchDefault} from '@angular/common';
+import {Component, Input, OnInit, HostListener, AfterViewInit, ElementRef, Output, EventEmitter} from '@angular/core';
+import {NgForOf, NgIf, NgSwitch, NgSwitchCase, NgSwitchDefault} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {DynamicModalComponent} from '../dynamic-modal/dynamic-modal.component';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {ToastService} from '../../shared/services/toast.service';
 
 export interface Column {
   key: string;
   header: string;
-  type?: 'status' | 'action' | 'text' | 'date';
+  type?: 'status' | 'action' | 'text' | 'date' | 'time' | 'password' | 'search' ;
 }
 
 @Component({
@@ -19,7 +19,7 @@ export interface Column {
     NgSwitchCase,
     NgSwitchDefault,
     FormsModule,
-    DynamicModalComponent
+    NgIf,
   ],
   styleUrls: ['./data-table.component.css']
 })
@@ -28,11 +28,17 @@ export class DataTableComponent implements OnInit, AfterViewInit {
   @Input() columns: Column[] = [];
   @Input() data: any[] = [];
   @Input() selectedTab: string = '';
+  @Input() modal: string = '';
+  @Output() addClickedView = new EventEmitter<void>();
+  @Output() addClicked = new EventEmitter<void>();
+  @Output() addClickedEdit = new EventEmitter<void>();
+  @Output() addClickedRemove = new EventEmitter<void>();
+  @Output() addClickedSendMessage = new EventEmitter<void>();
   itemsPerPage: number = 8;
   currentPage = 1;
   totalItems: number = 0;
 
-  constructor(private el: ElementRef, private http: HttpClient) {}
+  constructor(private el: ElementRef, private http: HttpClient,  private toastService: ToastService) {}
 
   ngOnInit(): void {
     this.totalItems = this.filteredData.length;
@@ -54,27 +60,58 @@ export class DataTableComponent implements OnInit, AfterViewInit {
     const rowHeight = 40; // Altura aproximada de cada linha
     const tableHeight = window.innerHeight - tableElement.getBoundingClientRect().top - 100; // Margem de segurança
 
-    // Definir o mínimo de 3 e o máximo de 8 itens por página
+    // Mínimo de 3 e o máximo de 8 itens por página
     this.itemsPerPage = Math.min(8, Math.max(3, Math.floor(tableHeight / rowHeight)));
   }
 
 
   get pages(): number[] {
     const pageCount = Math.ceil(this.totalItems / this.itemsPerPage);
-    return Array.from({ length: pageCount }, (_, i) => i + 1);
+    const maxButtons = 5;
+
+    if (pageCount <= maxButtons) {
+      return Array.from({ length: pageCount }, (_, i) => i + 1);
+    }
+
+    const pages = [];
+    const middle = Math.floor(maxButtons / 2);
+
+    let start = Math.max(1, this.currentPage - middle);
+    let end = Math.min(pageCount, this.currentPage + middle);
+
+    if (start === 1) {
+      end = maxButtons;
+    }
+    if (end === pageCount) {
+      start = pageCount - maxButtons + 1;
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
   }
 
   searchTerm: string = '';
 
   get filteredData(): any[] {
-    if (!this.searchTerm) {
-      return this.data;
-    }
-    return this.data.filter(item =>
-      Object.values(item).some(value =>
-        String(value).toLowerCase().includes(this.searchTerm.toLowerCase())
+    let filteredData = this.searchTerm
+      ? this.data.filter(item =>
+        Object.values(item).some(value =>
+          String(value).toLowerCase().includes(this.searchTerm.toLowerCase())
+        )
       )
-    );
+      : [...this.data];
+
+    filteredData.sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return dateB - dateA; // Ordenação do mais recente para o mais antigo
+    });
+
+    this.totalItems = filteredData.length;
+    return filteredData;
   }
 
   get paginatedData(): any[] {
@@ -83,153 +120,45 @@ export class DataTableComponent implements OnInit, AfterViewInit {
   }
 
   getStatusClass(status: string): string {
-    switch (status.toLowerCase()) {
-      case 'ativo':
+    switch (status) {
+      case 'Ativo':
+      case 'Finalizada':
         return 'bg-green-100 text-green-600';
-      case 'inativo':
+      case 'Inativo':
+      case 'Cancelada':
         return 'bg-red-100 text-red-600';
-      // case 'in progress':
-      //   return 'bg-yellow-100 text-yellow-600';
+      case 'Pendente':
+        return 'bg-yellow-100 text-yellow-600';
       default:
         return 'bg-gray-100 text-gray-600';
     }
   }
 
+  onView(item: any, event: Event): void {
+    if ((event.target as HTMLElement).tagName !== 'BUTTON') {
+      this.addClickedView.emit(item)
+    }
+  }
+
   onEdit(item: any): void {
-    console.log('Edit', item);
+    this.addClickedEdit.emit(item);
   }
 
   onDelete(item: any): void {
-    console.log('Delete', item);
+    this.addClickedRemove.emit(item);
+  }
+
+  onSendMessage(item: any) {
+    this.addClickedSendMessage.emit(item);
   }
 
   protected readonly Math = Math;
 
-  modalTitle: string = ''; // Título da modal
-  modalFields: any[] = []; // Campos que serão exibidos na modal
-  showModal: boolean = false; // Controla a exibição da modal
-
-  openModal() {
-    if (this.selectedTab === 'Pacientes') {
-      this.modalTitle = 'Adicionar Paciente';
-      this.modalFields = [
-        { label: 'Nome', name: 'name', type: 'text', value: '', placeholder: 'Digite o nome do paciente' },
-        { label: 'CPF', name: 'cpf', type: 'text', value: '', placeholder: 'Digite o CPF do paciente' },
-        { label: 'Data de Aniversário', name: 'birth_date', type: 'date', value: '', placeholder: 'Digite a data de aniversário' },
-        { label: 'E-mail', name: 'email', type: 'email', value: '', placeholder: 'Digite o e-mail' },
-        { label: 'Telefone', name: 'telephone', type: 'tel', value: '', placeholder: 'Digite o telefone' },
-        { label: 'Endereço', name: 'address', type: 'text', value: '', placeholder: 'Digite o endereço' },
-        {
-          label: 'Status',
-          name: 'status',
-          type: 'radio',
-          value: 'Ativo',
-          options: [
-            { label: 'Ativo', value: 'Ativo' },
-            { label: 'Inativo', value: 'Inativo' }
-          ]
-        }
-      ];
-    } else if (this.selectedTab === 'Médicos') {
-      this.modalTitle = 'Adicionar Médico';
-      this.modalFields = [
-        { label: 'Nome', name: 'name', type: 'text', value: '', placeholder: 'Digite o nome do médico' },
-        { label: 'Especialidade', name: 'specialty', type: 'text', value: '', placeholder: 'Digite a especialidade' },
-        { label: 'CRM', name: 'crm', type: 'text', value: '', placeholder: 'Digite o CRM' },
-        { label: 'E-mail', name: 'email', type: 'email', value: '', placeholder: 'Digite o e-mail' },
-        { label: 'Telefone', name: 'telephone', type: 'tel', value: '', placeholder: 'Digite o telefone' }
-      ];
-    }
-    this.showModal = true;
+  onAddClick() {
+    this.addClicked.emit();
   }
 
-  closeModal() {
-    this.showModal = false;
-  }
-
-  private applyCpfMask(value: string): string {
-    if (!value) {
-      return '';
-    }
-    value = value.replace(/\D/g, '');
-    if (value.length <= 11) {
-      value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
-    }
-    return value;
-  }
-
-  private applyPhoneMask(value: string): string {
-    if (!value) {
-      return '';
-    }
-    value = value.replace(/\D/g, '');
-    if (value.length <= 11) {
-      value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-    }
-    return value;
-  }
-
-  handleSubmit() {
-    const formData: any = {};
-
-    this.modalFields.forEach(field => {
-      formData[field.name] = field.value;
-    });
-
-    console.log('Dados enviados:', formData);
-
-    const cpf = formData['cpf'];
-    const formattedCpf = cpf ? this.applyCpfMask(cpf) : '';
-    const telephone = formData['telephone'];
-    const formattedTelephone = telephone ? this.applyPhoneMask(telephone) : '';
-
-    // Formatar a data
-    let formattedDate = '';
-    if (formData['birth_date']) {
-      const dateObj = new Date(formData['birth_date']);
-      formattedDate = dateObj.toLocaleDateString('pt-BR');
-    }
-
-    let dataToSend: any = {
-      name: formData['name'],
-      cpf: formattedCpf,
-      birth_date: formattedDate,
-      email: formData['email'],
-      telephone: formattedTelephone,
-      address: formData['address'],
-      status: formData['status'],
-    };
-
-    console.log(dataToSend);
-
-    const token = localStorage.getItem('authToken');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    const endpoint = 'http://localhost:8080/api/patients';
-    this.http.post(endpoint, dataToSend, { headers }).subscribe(
-      response => {
-        console.log('Resposta do backend:', response);
-        this.closeModal();
-        this.loadData();
-      },
-      error => {
-        console.error('Erro ao enviar dados para o backend:', error);
-      }
-    );
-  }
-
-  loadData() {
-    const token = localStorage.getItem('authToken');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    this.http.get<any[]>('http://localhost:8080/api/patients', { headers }).subscribe(
-      response => {
-        this.data = response;
-        this.totalItems = this.data.length;
-      },
-      error => {
-        console.error('Erro ao carregar dados:', error);
-      }
-    );
+  getNestedValue(obj: any, key: string): any {
+    return key.split('.').reduce((acc, part) => acc && acc[part] !== undefined ? acc[part] : null, obj);
   }
 }
