@@ -1,0 +1,19 @@
+<app-data-table
+  [title]="'Usuários'"
+  [columns]="usersColumns"
+  [data]="userData || []"
+  [selectedTab]="'Usuário'"
+  (addClicked)="openModal()"
+  (addClickedEdit)="editUser($event)"
+  (addClickedRemove)="deleteUser($event)">
+</app-data-table>
+
+<app-dynamic-modal
+  [title]="modalTitle"
+  [fields]="modalFields"
+  [show]="showModal"
+  [isViewMode]="viewMode"
+  (close)="showModal = false"
+  (submit)="handleSubmit()"
+  (submitEdit)="handleSubmitEdit()">
+</app-dynamic-modal>
