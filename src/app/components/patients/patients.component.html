@@ -1,0 +1,20 @@
+<app-data-table
+  [title]="'Pacientes'"
+  [columns]="patientsColumns"
+  [data]="patientData || []"
+  [selectedTab]="'Paciente'"
+  (addClickedView)="viewPatient($event)"
+  (addClicked)="openModal()"
+  (addClickedEdit)="editPatient($event)"
+  (addClickedRemove)="deletePatient($event)">
+</app-data-table>
+
+<app-dynamic-modal
+  [title]="modalTitle"
+  [fields]="modalFields"
+  [show]="showModal"
+  [isViewMode]="viewMode"
+  (close)="showModal = false"
+  (submit)="handleSubmit()"
+  (submitEdit)="handleSubmitEdit()">
+</app-dynamic-modal>
