@@ -1,0 +1,21 @@
+<app-data-table
+  [title]="'Consultas'"
+  [columns]="consultationsColumns"
+  [data]="consultationData || []"
+  [selectedTab]="'Consulta'"
+  (addClickedView)="viewConsultation($event)"
+  (addClicked)="openModal()"
+  (addClickedEdit)="editConsultation($event)"
+  (addClickedRemove)="deleteConsultation($event)"
+  (addClickedSendMessage)="sendMessage($event)">
+</app-data-table>
+
+<app-dynamic-modal
+  [title]="modalTitle"
+  [fields]="modalFields"
+  [show]="showModal"
+  [isViewMode]="viewMode"
+  (close)="showModal = false"
+  (submit)="handleSubmit()"
+  (submitEdit)="handleSubmitEdit()">
+</app-dynamic-modal>
