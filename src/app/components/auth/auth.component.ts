@@ -81,10 +81,12 @@ export class AuthComponent implements OnInit {
         // Decodificando o token para capturar o nome do usuário
         const decodedToken: any = jwtDecode(token);
         const username = decodedToken.username;
+        const role: any = decodedToken.role;
 
         // Armazenar o token e o nome do usuário no localStorage
         localStorage.setItem('authToken', token);
         localStorage.setItem('authUsername', username);
+        localStorage.setItem('authRole', role);
 
         this.toastService.showToast('Acesso realizado com sucesso!', 'success');
 
@@ -92,7 +94,7 @@ export class AuthComponent implements OnInit {
         this.router.navigate(['/dashboard']);
       },
       error => {
-        this.toastService.showToast('Dados inválidos! Tente novamente.', 'error');
+        this.toastService.showToast(error.error?.message, 'error');
       }
     );
   }
