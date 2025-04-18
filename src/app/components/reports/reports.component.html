@@ -1,0 +1,243 @@
+<div class="container mx-auto p-6">
+  <h1 class="text-2xl font-bold mb-6">Relatórios</h1>
+
+  <!-- Seleção de Relatório -->
+  <div class="mb-8">
+    <h2 class="text-lg font-semibold mb-4">Selecione um relatório</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div *ngFor="let option of reportOptions"
+           (click)="selectReport(option)"
+           [class.border-[#38b593]]="selectedReport?.id === option.id"
+           class="bg-white p-4 rounded-lg shadow border-2 hover:border-[#38b593] cursor-pointer transition-all">
+        <div class="flex items-start">
+          <div class="p-3 rounded-full bg-[#38b593]/10 text-[#38b593]">
+            <i [class]="option.icon"></i>
+          </div>
+          <div class="ml-4">
+            <h3 class="font-medium">{{ option.name }}</h3>
+            <p class="text-sm text-gray-500">{{ option.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros de Relatório -->
+  <div *ngIf="selectedReport" class="bg-white p-6 rounded-lg shadow mb-8">
+    <h2 class="text-lg font-semibold mb-4">Filtros</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-gray-700">Data Inicial</label>
+        <input type="date" [(ngModel)]="filters.startDate" class="w-full px-3 py-2 border rounded-md">
+      </div>
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-gray-700">Data Final</label>
+        <input type="date" [(ngModel)]="filters.endDate" class="w-full px-3 py-2 border rounded-md">
+      </div>
+      <div class="space-y-2">
+        <label class="text-sm font-medium text-gray-700">Status</label>
+        <select [(ngModel)]="filters.status" class="w-full px-3 py-2 border rounded-md">
+          <option value="">Todos</option>
+          <option value="Ativo">Ativo</option>
+          <option value="Inativo">Inativo</option>
+          <option value="Agendada">Agendada</option>
+          <option value="Concluída">Concluída</option>
+          <option value="Cancelada">Cancelada</option>
+        </select>
+      </div>
+      <div *ngIf="selectedReport.type === 'doctor' || selectedReport.type === 'consultation'" class="space-y-2">
+        <label class="text-sm font-medium text-gray-700">Especialidade</label>
+        <select [(ngModel)]="filters.specialty" class="w-full px-3 py-2 border rounded-md">
+          <option value="">Todas</option>
+          <option value="Cardiologia">Cardiologia</option>
+          <option value="Pediatria">Pediatria</option>
+          <option value="Ortopedia">Ortopedia</option>
+          <option value="Dermatologia">Dermatologia</option>
+          <option value="Neurologia">Neurologia</option>
+        </select>
+      </div>
+    </div>
+    <div class="mt-6 flex justify-end space-x-4">
+      <button (click)="clearFilters()" class="px-4 py-2 text-gray-700 border rounded-md hover:bg-gray-50">
+        Limpar Filtros
+      </button>
+      <button (click)="generateReport()" class="bg-[#38b593] text-white px-4 py-2 rounded-md hover:bg-[#2a9577] transition">
+        Gerar Relatório
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultado do Relatório -->
+  <div *ngIf="reportData.length > 0" class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="p-4 border-b flex justify-between items-center">
+      <h2 class="text-lg font-semibold">{{ selectedReport?.name }}</h2>
+      <div class="flex space-x-2">
+        <button (click)="exportCSV()" class="flex items-center px-3 py-1.5 text-sm border rounded-md hover:bg-gray-50">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          CSV
+        </button>
+        <button (click)="exportPDF()" class="flex items-center px-3 py-1.5 text-sm border rounded-md hover:bg-gray-50">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+          PDF
+        </button>
+        <button (click)="printReport()" class="flex items-center px-3 py-1.5 text-sm border rounded-md hover:bg-gray-50">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+          Imprimir
+        </button>
+      </div>
+    </div>
+
+    <div class="overflow-y-auto max-h-96">
+      <table class="min-w-full">
+        <!-- Table Header -->
+        <thead class="bg-gray-50">
+        <tr>
+          <th *ngFor="let column of reportColumns" class="px-4 py-3 text-left text-sm font-medium text-gray-600">
+            {{ column.header }}
+          </th>
+        </tr>
+        </thead>
+
+        <!-- Table Body -->
+        <tbody class="divide-y divide-gray-200">
+        <tr *ngFor="let item of reportData" class="hover:bg-gray-50">
+          <td *ngFor="let column of reportColumns" class="px-4 py-4 text-sm">
+            <ng-container [ngSwitch]="column.type">
+                    <span *ngSwitchCase="'status'" [class]="'px-3 py-1 rounded-full ' + getStatusClass(item[column.key])">
+                      {{ item[column.key] }}
+                    </span>
+              <span *ngSwitchCase="'date'">
+                      {{ formatDate(item[column.key]) }}
+                    </span>
+              <span *ngSwitchDefault>{{ getNestedValue(item, column.key) }}</span>
+            </ng-container>
+          </td>
+        </tr>
+        <tr *ngIf="reportData.length === 0">
+          <td [attr.colspan]="reportColumns.length" class="text-center py-6">
+            <div class="flex flex-col items-center justify-center text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <p class="mt-4 mb-0 text-base text-gray-700">Nenhum dado encontrado</p>
+              <small>Tente ajustar os filtros</small>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200">
+      <div class="text-sm text-gray-500">
+        Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} a
+        {{ Math.min(currentPage * itemsPerPage, reportData.length) }} de
+        {{ reportData.length }} resultados
+      </div>
+      <div class="flex space-x-1">
+        <button [disabled]="currentPage === 1"
+                (click)="currentPage = currentPage - 1"
+                [class.opacity-50]="currentPage === 1"
+                class="px-3 py-1 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200 cursor-pointer">
+          Anterior
+        </button>
+        <button *ngFor="let page of pages"
+                [class.bg-[#38b593]]="page === currentPage"
+                [class.text-white]="page === currentPage"
+                [class.hover:bg-gray-200]="page !== currentPage"
+                (click)="currentPage = page"
+                class="px-3 py-1 rounded-md text-sm font-medium hover:bg-gray-200 cursor-pointer">
+          {{page}}
+        </button>
+        <button [disabled]="currentPage === pages.length"
+                (click)="currentPage = currentPage + 1"
+                [class.opacity-50]="currentPage === pages.length"
+                class="px-3 py-1 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200 cursor-pointer">
+          Próximo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estatísticas do Relatório -->
+  <div *ngIf="reportData.length > 0" class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-white p-6 rounded-lg shadow">
+      <h3 class="text-lg font-semibold mb-4">Resumo</h3>
+      <div class="space-y-4">
+        <div class="flex justify-between">
+          <span class="text-gray-600">Total de registros:</span>
+          <span class="font-medium">{{ reportData.length }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">Período:</span>
+          <span class="font-medium">{{ formatDate(filters.startDate) }} - {{ formatDate(filters.endDate) }}</span>
+        </div>
+        <div *ngIf="filters.status" class="flex justify-between">
+          <span class="text-gray-600">Status:</span>
+          <span class="font-medium">{{ filters.status }}</span>
+        </div>
+        <div *ngIf="filters.specialty" class="flex justify-between">
+          <span class="text-gray-600">Especialidade:</span>
+          <span class="font-medium">{{ filters.specialty }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="selectedReport?.type === 'patient' || selectedReport?.type === 'consultation'" class="bg-white p-6 rounded-lg shadow">
+      <h3 class="text-lg font-semibold mb-4">Estatísticas</h3>
+      <div class="space-y-4">
+        <div *ngIf="selectedReport?.type === 'patient'" class="flex justify-between">
+          <span class="text-gray-600">Pacientes ativos:</span>
+          <span class="font-medium">{{ countByStatus('Ativo') }}</span>
+        </div>
+        <div *ngIf="selectedReport?.type === 'patient'" class="flex justify-between">
+          <span class="text-gray-600">Pacientes inativos:</span>
+          <span class="font-medium">{{ countByStatus('Inativo') }}</span>
+        </div>
+        <div *ngIf="selectedReport?.type === 'consultation'" class="flex justify-between">
+          <span class="text-gray-600">Consultas pendentes:</span>
+          <span class="font-medium">{{ countByStatus('Pendente') }}</span>
+        </div>
+        <div *ngIf="selectedReport?.type === 'consultation'" class="flex justify-between">
+          <span class="text-gray-600">Consultas finalizadas:</span>
+          <span class="font-medium">{{ countByStatus('Finalizada') }}</span>
+        </div>
+        <div *ngIf="selectedReport?.type === 'consultation'" class="flex justify-between">
+          <span class="text-gray-600">Consultas canceladas:</span>
+          <span class="font-medium">{{ countByStatus('Cancelada') }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow">
+      <h3 class="text-lg font-semibold mb-4">Ações</h3>
+      <div class="space-y-3">
+        <button (click)="exportCSV()" class="w-full flex items-center justify-center px-4 py-2 border rounded-md hover:bg-gray-50">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Exportar para CSV
+        </button>
+        <button (click)="exportPDF()" class="w-full flex items-center justify-center px-4 py-2 border rounded-md hover:bg-gray-50">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+          Exportar para PDF
+        </button>
+        <button (click)="printReport()" class="w-full flex items-center justify-center px-4 py-2 border rounded-md hover:bg-gray-50">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+          Imprimir Relatório
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
