@@ -51,11 +51,15 @@ export class SidebarComponent {
 
   faqItems: { question: string; answer: string }[] = [
     { question: 'Como cancelar uma consulta?', answer: 'Vá até a aba Consultas, clique no botão de editar da consulta desejada e depois altere o status para cancelada.' },
-    { question: 'Horário de atendimento?', answer: 'Nosso horário é das 8h às 18h, de segunda a sexta.' },
-    { question: 'Como editar perfil?', answer: 'Clique na sua foto no canto superior e selecione "Editar Perfil".' },
     { question: 'Posso reagendar uma consulta?', answer: 'Sim, basta acessar a consulta desejada, clicar no botão de editar e efetuar a alteração da data e horário da consulta.' },
+    { question: 'Como cadastrar um novo paciente?', answer: 'Vá até a aba Pacientes e clique no botão "Adicionar Paciente". Preencha os dados solicitados e salve.' },
+    { question: 'Onde encontro os relatórios?', answer: 'Clique no menu Relatórios na barra lateral. Você poderá escolher entre diferentes tipos de relatórios disponíveis.' },
+    { question: 'Consigo buscar um paciente pelo nome?', answer: 'Sim, na aba Pacientes, utilize o campo de busca para localizar rapidamente pelo nome ou CPF.' },
+    { question: 'Como adiciono um novo médico ao sistema?', answer: 'Na aba Médicos, clique em "Adicionar Médico". Preencha os dados solicitados e salve.' },
+    { question: 'É possível filtrar as consultas por data?', answer: 'Sim, na aba Consultas, utilize o campo de pesquisa inserindo a data para visualizar consultas de um determinado dia ou vá em relatórios e procure por relatório de consulta.' },
+    { question: 'Como alterar minha senha?', answer: 'Acesse seu perfil clicando no ícone de usuário, vá em "Editar Perfil" e clique em "Alterar Senha".' },
+    { question: 'Como saber a especialidade de um médico?', answer: 'Na aba Médicos, a especialidade está visível na listagem. Você também pode clicar no nome para mais detalhes.' }
   ];
-
 
   searchTerm: string = '';
   filteredFaqItems: { question: string; answer: string }[] = [];
@@ -78,7 +82,7 @@ export class SidebarComponent {
     if (this.role === 'Administrador') {
       this.menuItems.push(
         { label: 'Usuários', route: '/users', icon: 'users' },
-        { label: 'Relatórios', route: '/progress', icon: 'chart' },
+        { label: 'Relatórios', route: '/reports', icon: 'chart' },
       );
     }
 
