@@ -3,7 +3,6 @@
   [columns]="doctorsColumns"
   [data]="doctorData || []"
   [selectedTab]="'Médico'"
-  (addClickedView)="viewDoctor($event)"
   (addClicked)="openModal()"
   (addClickedEdit)="editDoctor($event)"
   (addClickedRemove)="deleteDoctor($event)">

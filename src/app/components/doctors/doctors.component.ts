@@ -10,9 +10,12 @@ import {VerifyDataService} from '../../shared/services/verifyData.service';
 interface Doctor {
   name: string;
   email: string;
+  specialty: {
+    id: number;
+    name: string;
+  };
   crm: string;
   telephone: string;
-  status: string;
 }
 
 @Component({
@@ -33,11 +36,13 @@ export class DoctorsComponent implements OnInit {
   modalTitle = '';
   modalFields: any[] = [];
   editingDoctorId = '';
+  specialtyOptions: any[] = [];
 
   doctorsColumns: Column[] = [
     { key: 'name', header: 'Nome', type: 'text' },
     { key: 'email', header: 'E-mail', type: 'text' },
     { key: 'crm', header: 'CRM', type: 'text' },
+    { key: 'specialty.name', header: 'Especialidade', type: 'text' },
     { key: 'telephone', header: 'Telefone', type: 'text' },
     { key: 'action', header: 'Ações', type: 'action' }
   ];
@@ -48,8 +53,21 @@ export class DoctorsComponent implements OnInit {
 
   constructor(private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
 
+  loadSpecialties(): void {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+    this.http.get<any[]>('http://localhost:8080/api/specialties', { headers }).subscribe(data => {
+      this.specialtyOptions = data.map(spec => ({
+        label: spec.name,
+        value: spec.id
+      }));
+    });
+  }
+
   ngOnInit(): void {
     this.loadDoctors();
+    this.loadSpecialties();
   }
 
   loadDoctors(): void {
@@ -75,7 +93,7 @@ export class DoctorsComponent implements OnInit {
     this.modalFields = [
       { label: 'Nome', name: 'name', type: 'text', value: '', placeholder: 'Digite o nome do médico' },
       { label: 'CRM', name: 'crm', type: 'text', value: '', placeholder: 'Digite o CRM do médico' },
-      { label: 'Especialidade', name: 'specialty', type: 'text', value: '', placeholder: 'Digite a especialidade do médico' },
+      { label: 'Especialidade', name: 'specialtyId', type: 'select', value: '', placeholder: 'Selecione a especialidade', options: this.specialtyOptions },
       { label: 'E-mail', name: 'email', type: 'email', value: '', placeholder: 'Digite o e-mail do médico' },
       { label: 'Celular', name: 'telephone', type: 'tel', value: '', placeholder: 'Digite o telefone do médico' },
     ];
@@ -99,7 +117,7 @@ export class DoctorsComponent implements OnInit {
     let dataToSend: any = {
       name: formData['name'],
       crm: formData['crm'],
-      specialty: formData['specialty'],
+      specialty: { id: formData['specialtyId'] },
       email: formData['email'],
       telephone: formData['telephone'],
     };
@@ -107,8 +125,7 @@ export class DoctorsComponent implements OnInit {
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    const endpoint = 'http://localhost:8080/api/doctors';
-    this.http.post(endpoint, dataToSend, { headers }).subscribe(
+    this.http.post(this.apiUrl, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
         this.loadDoctors();
@@ -130,7 +147,7 @@ export class DoctorsComponent implements OnInit {
     this.modalFields = [
       { label: 'Nome', name: 'name', type: 'text', value: doctor.name, placeholder: 'Digite o nome do médico' },
       { label: 'CRM', name: 'crm', type: 'text', value: doctor.crm, placeholder: 'Digite o CRM do médico' },
-      { label: 'Especialidade', name: 'specialty', type: 'text', value: doctor.specialty, placeholder: 'Digite a especialidade do médico' },
+      { label: 'Especialidade', name: 'specialtyId', type: 'select', value: doctor.specialty.id, placeholder: 'Selecione a especialidade', options: this.specialtyOptions },
       { label: 'E-mail', name: 'email', type: 'email', value: doctor.email, placeholder: 'Digite o e-mail do médico' },
       { label: 'Celular', name: 'telephone', type: 'tel', value: doctor.telephone, placeholder: 'Digite o telefone do médico' },
     ];
@@ -148,19 +165,16 @@ export class DoctorsComponent implements OnInit {
 
     let dataToSend: any = {
       name: formData['name'],
-      cpf: formData['cpf'],
+      crm: formData['crm'],
+      specialty: { id: formData['specialtyId'] },
       email: formData['email'],
       telephone: formData['telephone'],
-      address: formData['address'],
-      status: formData['status'],
     };
-
-    console.log(this.editingDoctorId)
 
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    const endpoint = `http://localhost:8080/api/doctors/${this.editingDoctorId}`;
+    const endpoint = `${this.apiUrl}/${this.editingDoctorId}`;
     this.http.put(endpoint, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
@@ -196,7 +210,7 @@ export class DoctorsComponent implements OnInit {
         const token = localStorage.getItem('authToken');
         const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-        const endpoint = `http://localhost:8080/api/doctors/${doctor.id}`;
+        const endpoint = `${this.apiUrl}/${doctor.id}`;
         this.http.delete(endpoint, { headers }).subscribe(
           response => {
             this.loadDoctors();
@@ -209,20 +223,5 @@ export class DoctorsComponent implements OnInit {
         );
       }
     });
-  }
-
-  viewDoctor(doctor: any): void {
-    this.selectedTab = 'Médicos';
-    this.modalTitle = 'Dados do Médico';
-
-    this.modalFields = [
-      { label: 'Nome', name: 'name', type: 'text', value: doctor.name, placeholder: 'Digite o nome do médico' },
-      { label: 'CRM', name: 'crm', type: 'text', value: doctor.crm, placeholder: 'Digite o CRM do médico' },
-      { label: 'Especialidade', name: 'specialty', type: 'text', value: doctor.specialty, placeholder: 'Digite a especialidade do médico' },
-      { label: 'E-mail', name: 'email', type: 'email', value: doctor.email, placeholder: 'Digite o e-mail do médico' },
-      { label: 'Celular', name: 'telephone', type: 'tel', value: doctor.telephone, placeholder: 'Digite o telefone do médico' },
-    ];
-    this.viewMode = true;
-    this.showModal = true;
   }
 }
