@@ -69,6 +69,33 @@ export class PatientsComponent implements OnInit {
     });
   }
 
+  handleCepBlur(event: any) {
+    const cep = event.target.value?.replace(/\D/g, '');
+    if (!cep || cep.length !== 8) return;
+
+    const token = localStorage.getItem('authToken');
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    this.http.get<any>(`http://localhost:8080/api/cep/${cep}`, { headers }).subscribe(
+      (data) => {
+        this.modalFields.forEach(field => {
+          if (field.name === 'street') field.value = data.logradouro;
+          if (field.name === 'complement') field.value = data.complemento;
+          if (field.name === 'neighborhood') field.value = data.bairro;
+          if (field.name === 'city') field.value = data.localidade;
+          if (field.name === 'state') field.value = data.uf;
+        });
+        console.log(data)
+      },
+      (err) => {
+        this.toastService.showToast('CEP não encontrado!', 'error');
+      }
+    );
+  }
+
   openModal() {
     this.selectedTab === 'Pacientes'
     this.modalTitle = 'Adicionar Paciente';
@@ -78,7 +105,13 @@ export class PatientsComponent implements OnInit {
       { label: 'Data de Aniversário', name: 'birth_date', type: 'date', value: '', placeholder: 'Digite a data de aniversário do paciente' },
       { label: 'E-mail', name: 'email', type: 'email', value: '', placeholder: 'Digite o e-mail do paciente' },
       { label: 'Celular', name: 'telephone', type: 'tel', value: '', placeholder: 'Digite o celular do paciente' },
-      { label: 'Endereço', name: 'address', type: 'text', value: '', placeholder: 'Digite o endereço do paciente' },
+      { label: 'CEP', name: 'zip_code', type: 'text', value: '', placeholder: 'Digite o CEP', onBlur: this.handleCepBlur.bind(this) },
+      { label: 'Rua', name: 'street', type: 'text', value: '', placeholder: 'Rua' },
+      { label: 'Número', name: 'address_number', type: 'text', value: '', placeholder: 'Número' },
+      { label: 'Complemento', name: 'complement', type: 'text', value: '', placeholder: 'Complemento' },
+      { label: 'Bairro', name: 'neighborhood', type: 'text', value: '', placeholder: 'Bairro' },
+      { label: 'Cidade', name: 'city', type: 'text', value: '', placeholder: 'Cidade' },
+      { label: 'Estado', name: 'state', type: 'text', value: '', placeholder: 'Estado' },
     ];
     this.viewMode = false;
     this.showModal = true;
@@ -109,15 +142,22 @@ export class PatientsComponent implements OnInit {
       birth_date: formattedDate,
       email: formData['email'],
       telephone: formData['telephone'],
-      address: formData['address'],
+      address: {
+        cep: formData['zip_code'],
+        logradouro: formData['street'],
+        complemento: formData['complement'],
+        bairro: formData['neighborhood'],
+        localidade: formData['city'],
+        uf: formData['state']
+      },
+      address_number: formData['address_number'],
       status: 'Ativo',
     };
 
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    const endpoint = 'http://localhost:8080/api/patients';
-    this.http.post(endpoint, dataToSend, { headers }).subscribe(
+    this.http.post(this.apiUrl, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
         this.loadPatients();
@@ -128,17 +168,6 @@ export class PatientsComponent implements OnInit {
         this.toastService.showToast(errorMessage, 'error');
       }
     );
-  }
-
-  verifyData(): boolean {
-    const allFieldsFilled = this.modalFields.every(field => field.value && field.value.trim() !== '');
-
-    if (!allFieldsFilled) {
-      this.toastService.showToast('Todos os campos precisam estar preenchidos!', 'error');
-      return false;
-    }
-
-    return true;
   }
 
   editPatient(patient: any): void {
@@ -163,7 +192,13 @@ export class PatientsComponent implements OnInit {
       { label: 'Data de Aniversário', name: 'birth_date', type: 'date', value: formattedDate, placeholder: 'Digite a data de aniversário do paciente', disable: true },
       { label: 'E-mail', name: 'email', type: 'email', value: patient.email, placeholder: 'Digite o e-mail do paciente' },
       { label: 'Celular', name: 'telephone', type: 'tel', value: patient.telephone, placeholder: 'Digite o celular do paciente' },
-      { label: 'Endereço', name: 'address', type: 'text', value: patient.address, placeholder: 'Digite o endereço do paciente' },
+      { label: 'CEP', name: 'zip_code', type: 'text', value: patient.address?.zipCode || '', placeholder: 'Digite o CEP', onBlur: this.handleCepBlur.bind(this) },
+      { label: 'Rua', name: 'street', type: 'text', value: patient.address?.street || '', placeholder: 'Rua' },
+      { label: 'Número', name: 'address_number', type: 'text', value: patient.address_number || '', placeholder: 'Número' },
+      { label: 'Complemento', name: 'complement', type: 'text', value: patient.address?.complement || '', placeholder: 'Complemento' },
+      { label: 'Bairro', name: 'neighborhood', type: 'text', value: patient.address?.neighborhood || '', placeholder: 'Bairro' },
+      { label: 'Cidade', name: 'city', type: 'text', value: patient.address?.city || '', placeholder: 'Cidade' },
+      { label: 'Estado', name: 'state', type: 'text', value: patient.address?.state || '', placeholder: 'Estado' },
       {
         label: 'Status',
         name: 'status',
@@ -180,7 +215,7 @@ export class PatientsComponent implements OnInit {
   }
 
   handleSubmitEdit() {
-    if (!this.verifyData()) return;
+    if (!this.verifyDataService.verifyData(this.modalFields, this.selectedTab)) return;
 
     const formData: any = {};
     this.modalFields.forEach(field => {
@@ -199,14 +234,22 @@ export class PatientsComponent implements OnInit {
       birth_date: formattedDate,
       email: formData['email'],
       telephone: formData['telephone'],
-      address: formData['address'],
+      address: {
+        cep: formData['zip_code'],
+        logradouro: formData['street'],
+        complemento: formData['complement'],
+        bairro: formData['neighborhood'],
+        localidade: formData['city'],
+        uf: formData['state']
+      },
+      address_number: formData['address_number'],
       status: formData['status'],
     };
 
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    const endpoint = `http://localhost:8080/api/patients/${this.editingPatientId}`;
+    const endpoint = `${this.apiUrl}/${this.editingPatientId}`;
     this.http.put(endpoint, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
@@ -242,7 +285,7 @@ export class PatientsComponent implements OnInit {
         const token = localStorage.getItem('authToken');
         const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-        const endpoint = `http://localhost:8080/api/patients/${patient.id}`;
+        const endpoint = `${this.apiUrl}/${patient.id}`;
         this.http.delete(endpoint, { headers }).subscribe(
           response => {
             this.loadPatients();
@@ -272,13 +315,29 @@ export class PatientsComponent implements OnInit {
     }
 
     this.modalFields = [
-      { label: 'Nome', name: 'name', type: 'text', value: patient.name, disable: true },
-      { label: 'CPF', name: 'cpf', type: 'text', value: patient.cpf, disable: true },
-      { label: 'Data de Aniversário', name: 'birth_date', type: 'date', value: formattedDate, disable: true },
-      { label: 'E-mail', name: 'email', type: 'email', value: patient.email, disable: true },
-      { label: 'Celular', name: 'telephone', type: 'tel', value: patient.telephone, disable: true },
-      { label: 'Endereço', name: 'address', type: 'text', value: patient.address, disable: true },
-      { label: 'Status', name: 'address', type: 'text', value: patient.status, disable: true },
+      { label: 'Nome', name: 'name', type: 'text', value: patient.name, placeholder: '', disable: true },
+      { label: 'CPF', name: 'cpf', type: 'text', value: patient.cpf, placeholder: '', disable: true },
+      { label: 'Data de Aniversário', name: 'birth_date', type: 'date', value: formattedDate, placeholder: '', disable: true },
+      { label: 'E-mail', name: 'email', type: 'email', value: patient.email, placeholder: '', disable: true },
+      { label: 'Celular', name: 'telephone', type: 'tel', value: patient.telephone, placeholder: '', disable: true },
+      { label: 'CEP', name: 'zip_code', type: 'text', value: patient.address?.zipCode || '', placeholder: '', disable: true },
+      { label: 'Rua', name: 'street', type: 'text', value: patient.address?.street || '', placeholder: '', disable: true },
+      { label: 'Número', name: 'address_number', type: 'text', value: patient.address_number || '', placeholder: '', disable: true },
+      { label: 'Complemento', name: 'complement', type: 'text', value: patient.address?.complement || '', placeholder: '', disable: true },
+      { label: 'Bairro', name: 'neighborhood', type: 'text', value: patient.address?.neighborhood || '', placeholder: '', disable: true },
+      { label: 'Cidade', name: 'city', type: 'text', value: patient.address?.city || '', placeholder: '', disable: true },
+      { label: 'Estado', name: 'state', type: 'text', value: patient.address?.state || '', placeholder: '', disable: true },
+      {
+        label: 'Status',
+        name: 'status',
+        type: 'radio',
+        value: patient.status,
+        disable: true,
+        options: [
+          { label: 'Ativo', value: 'Ativo' },
+          { label: 'Inativo', value: 'Inativo' }
+        ],
+      }
     ];
     this.viewMode = true;
     this.showModal = true;
