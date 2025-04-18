@@ -67,34 +67,32 @@ export class AuthComponent implements OnInit {
   }
 
   loginToBackend(loginData: { username: string; password: string }): void {
-    // Alterando "username" para "login" no objeto enviado para o backend
     const requestData = {
-      login: loginData.username,  // Alterado para "login"
+      login: loginData.username,
       password: loginData.password
     };
 
     this.http.post<any>(this.apiUrl, requestData).subscribe(
       response => {
-        // Acessando o token na resposta
         const token = response.token;
+        const refreshToken = response.refreshToken;
 
-        // Decodificando o token para capturar o nome do usuário
         const decodedToken: any = jwtDecode(token);
         const username = decodedToken.username;
         const role: any = decodedToken.role;
 
-        // Armazenar o token e o nome do usuário no localStorage
         localStorage.setItem('authToken', token);
+        localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('authUsername', username);
         localStorage.setItem('authRole', role);
 
         this.toastService.showToast('Acesso realizado com sucesso!', 'success');
 
-        // Redirecionar para a página de dashboard após o login bem-sucedido
         this.router.navigate(['/dashboard']);
       },
       error => {
         this.toastService.showToast(error.error?.message, 'error');
+        console.error('Erro ao fazer login:', error);
       }
     );
   }
