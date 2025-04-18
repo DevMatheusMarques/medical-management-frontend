@@ -8,13 +8,13 @@
       <div *ngFor="let field of fields">
         <label class="block text-gray-700">{{ field.label }}</label>
         <ng-container [ngSwitch]="field.type">
-          <input *ngSwitchCase="'text'" [name]="field.name" [placeholder]="field.placeholder" [(ngModel)]="field.value" [disabled]="field.disable"
+          <input *ngSwitchCase="'text'" [name]="field.name" [placeholder]="field.placeholder" [(ngModel)]="field.value" [disabled]="field.disable" (blur)="field.onBlur && field.onBlur($event)"
                  class="border border-gray-300 rounded-md px-4 py-2 w-full"
                  [appMask]="field.label === 'CPF' ? 'cpf' : field.label === 'CRM' ? 'crm' : ''"
-                 [maxlength]="field.label === 'CPF' ? 14  : field.label === 'CRM' ? 9 : null"
+                 [maxlength]="field.label === 'CPF' ? 14  : field.label === 'CRM' ? 10 : null"
                  required />
 
-          <input *ngSwitchCase="'tel'" [name]="field.name" [placeholder]="field.placeholder" [(ngModel)]="field.value" type="tel"
+          <input *ngSwitchCase="'tel'" [name]="field.name" [placeholder]="field.placeholder" [(ngModel)]="field.value" type="tel" [disabled]="field.disable"
                  class="border border-gray-300 rounded-md px-4 py-2 w-full"
                  [appMask]="field.label === 'Celular' ? 'telephone' : ''"
                  maxlength="15" required />
@@ -22,7 +22,7 @@
           <input *ngSwitchCase="'date'" [name]="field.name" [(ngModel)]="field.value" type="date" [disabled]="field.disable"
                  class="border border-gray-300 rounded-md px-4 py-2 w-full" required />
 
-          <input *ngSwitchCase="'email'" [name]="field.name" [placeholder]="field.placeholder" [(ngModel)]="field.value" type="email"
+          <input *ngSwitchCase="'email'" [name]="field.name" [placeholder]="field.placeholder" [(ngModel)]="field.value" type="email" [disabled]="field.disable"
                  class="border border-gray-300 rounded-md px-4 py-2 w-full" required />
 
           <div *ngSwitchCase="'password'" class="relative">
@@ -45,12 +45,12 @@
             </button>
           </div>
 
-          <input *ngSwitchCase="'time'" [name]="field.name" [placeholder]="field.placeholder" [(ngModel)]="field.value" type="time"
+          <input *ngSwitchCase="'time'" [name]="field.name" [placeholder]="field.placeholder" [(ngModel)]="field.value" type="time" [disabled]="field.disable"
                  class="border border-gray-300 rounded-md px-4 py-2 w-full" required />
 
           <div *ngSwitchCase="'radio'" class="flex items-center space-x-4">
             <label *ngFor="let option of field.options">
-              <input type="radio" [name]="field.name" [(ngModel)]="field.value" [value]="option.value" class="mr-2" required>
+              <input type="radio" [name]="field.name" [(ngModel)]="field.value" [value]="option.value" class="mr-2" required [disabled]="field.disable">
               {{ option.label }}
             </label>
           </div>
