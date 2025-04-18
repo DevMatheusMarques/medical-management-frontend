@@ -180,8 +180,7 @@ export class ConsultationsComponent {
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    const endpoint = 'http://localhost:8080/api/consultations';
-    this.http.post(endpoint, dataToSend, { headers }).subscribe(
+    this.http.post(this.apiUrl, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
         this.loadConsultations();
@@ -293,7 +292,7 @@ export class ConsultationsComponent {
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    const endpoint = `http://localhost:8080/api/consultations/${this.editingConsultationId}`;
+    const endpoint = `${this.apiUrl}/${this.editingConsultationId}`;
     this.http.put(endpoint, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
@@ -329,7 +328,7 @@ export class ConsultationsComponent {
         const token = localStorage.getItem('authToken');
         const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-        const endpoint = `http://localhost:8080/api/consultations/${consultation.id}`;
+        const endpoint = `${this.apiUrl}/${consultation.id}`;
         this.http.delete(endpoint, { headers }).subscribe(
           response => {
             this.loadConsultations();
@@ -344,25 +343,6 @@ export class ConsultationsComponent {
     });
   }
 
-  viewConsultation(consultation: any): void {
-    this.selectedTab = 'Consultas';
-    this.modalTitle = 'Dados da Consulta';
-
-    this.modalFields = [
-      { label: 'Paciente', name: 'patient', type: 'text', value: consultation.patientName, placeholder: 'Nome do paciente', readOnly: true },
-      { label: 'Médico', name: 'doctor', type: 'text', value: consultation.doctorName, placeholder: 'Nome do médico', readOnly: true },
-      { label: 'Data da Consulta', name: 'date', type: 'date', value: consultation.date, readOnly: true },
-      { label: 'Horário da Consulta', name: 'time', type: 'time', value: consultation.time, readOnly: true },
-    ];
-    this.viewMode = true;
-    this.showModal = true;
-  }
-
-  private removePhoneMask(value: string): string {
-    if (!value) return '';
-    return value.replace(/\D/g, '');
-  }
-
   sendMessage(item: any) {
     let phoneNumber = item.patient.telephone;
 
@@ -371,7 +351,6 @@ export class ConsultationsComponent {
     const consultationDate = item.date;
     const consultationTime = item.time;
 
-    // 1. Remove todos os caracteres não numéricos
     phoneNumber = phoneNumber.replace(/\D/g, '');
 
     if (!phoneNumber.startsWith('55')) {
