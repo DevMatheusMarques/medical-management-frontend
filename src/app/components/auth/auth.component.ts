@@ -5,6 +5,7 @@ import { Router } from '@angular/router';  // Importação do Router para redire
 import { CommonModule } from '@angular/common';  // Importação do CommonModule
 import { jwtDecode } from 'jwt-decode';
 import {ToastService} from '../../shared/services/toast.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-auth',
@@ -22,7 +23,7 @@ export class AuthComponent implements OnInit {
   loginForm!: FormGroup;
   showPassword: boolean = false;
   rememberMe = false;
-  private apiUrl = 'http://168.231.89.199:8080/api/auth/login';
+  private apiUrl = `${environment.apiUrl}/api/auth/login`;
 
   constructor(
     private fb: FormBuilder,
