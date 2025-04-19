@@ -78,12 +78,12 @@ export class SidebarComponent {
       { label: 'Consultas', route: '/consultations', icon: 'calendar' },
       { label: 'Pacientes', route: '/patients', icon: 'patient' },
       { label: 'Médicos', route: '/doctors', icon: 'stethoscope' },
+      { label: 'Relatórios', route: '/reports', icon: 'chart' },
     ];
 
     if (this.role === 'Administrador') {
       this.menuItems.push(
         { label: 'Usuários', route: '/users', icon: 'users' },
-        { label: 'Relatórios', route: '/reports', icon: 'chart' },
       );
     }
   }
