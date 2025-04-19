@@ -58,7 +58,7 @@ export class DoctorsComponent implements OnInit {
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-    this.http.get<any[]>('http://localhost:8080/api/specialties', { headers }).subscribe(data => {
+    this.http.get<any[]>(`${environment.apiUrl}/api/specialties`, { headers }).subscribe(data => {
       this.specialtyOptions = data.map(spec => ({
         label: spec.name,
         value: spec.id
