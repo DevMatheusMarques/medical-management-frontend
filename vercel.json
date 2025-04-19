@@ -1,0 +1,10 @@
+{
+  "buildCommand": "npm run build --configuration=production",
+  "outputDirectory": "dist/medical-management-frontend",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

@@ -4,8 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-
-
+import { environment } from '../../../environments/environment';
 
 interface ReportOption {
   id: string;
@@ -89,7 +88,7 @@ export class ReportsComponent implements OnInit {
   itemsPerPage: number = 10;
   Math = Math;
 
-  private apiUrl = 'http://localhost:8080/api/reports';
+  private apiUrl = `${environment.apiUrl}/api/reports`;
 
   constructor(private http: HttpClient) {}
 

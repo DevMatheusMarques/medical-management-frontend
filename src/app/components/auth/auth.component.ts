@@ -22,7 +22,7 @@ export class AuthComponent implements OnInit {
   loginForm!: FormGroup;
   showPassword: boolean = false;
   rememberMe = false;
-  private apiUrl = 'http://localhost:8080/api/auth/login';
+  private apiUrl = 'http://168.231.89.199:8080/api/auth/login';
 
   constructor(
     private fb: FormBuilder,

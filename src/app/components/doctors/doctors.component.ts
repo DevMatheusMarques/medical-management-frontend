@@ -6,6 +6,7 @@ import {ToastService} from '../../shared/services/toast.service';
 import Swal from 'sweetalert2';
 import {DynamicModalComponent} from '../dynamic-modal/dynamic-modal.component';
 import {VerifyDataService} from '../../shared/services/verifyData.service';
+import { environment } from '../../../environments/environment';
 
 interface Doctor {
   name: string;
@@ -49,7 +50,7 @@ export class DoctorsComponent implements OnInit {
 
   doctorData: Doctor[] = [];
 
-  private apiUrl = 'http://localhost:8080/api/doctors';
+  private apiUrl = `${environment.apiUrl}/api/doctors`;
 
   constructor(private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
 
@@ -88,7 +89,7 @@ export class DoctorsComponent implements OnInit {
   }
 
   openModal() {
-    this.selectedTab === 'Médicos'
+    this.selectedTab = 'Médicos'
     this.modalTitle = 'Adicionar Médico';
     this.modalFields = [
       { label: 'Nome', name: 'name', type: 'text', value: '', placeholder: 'Digite o nome do médico' },

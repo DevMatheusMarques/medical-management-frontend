@@ -5,6 +5,7 @@ import {ToastService} from '../../shared/services/toast.service';
 import Swal from 'sweetalert2';
 import {DynamicModalComponent} from '../dynamic-modal/dynamic-modal.component';
 import {VerifyDataService} from '../../shared/services/verifyData.service';
+import { environment } from '../../../environments/environment';
 
 interface Patient {
   name: string;
@@ -44,16 +45,16 @@ export class PatientsComponent implements OnInit {
 
   patientData: Patient[] = [];
 
-  private apiUrl = 'http://localhost:8080/api/patients';
+  private apiUrl = `${environment.apiUrl}/api/patients`;
 
   constructor(private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
 
   ngOnInit(): void {
-    this.loadPatients();  // Chama o método para carregar os dados dos pacientes
+    this.loadPatients();
   }
 
   loadPatients(): void {
-    const token = localStorage.getItem('authToken'); // 🔹 Busca o token salvo
+    const token = localStorage.getItem('authToken');
 
     if (!token) {
       console.error('Token não encontrado!');
@@ -79,7 +80,7 @@ export class PatientsComponent implements OnInit {
       'Authorization': `Bearer ${token}`
     });
 
-    this.http.get<any>(`http://localhost:8080/api/cep/${cep}`, { headers }).subscribe(
+    this.http.get<any>(`http://168.231.89.199:8080/api/cep/${cep}`, { headers }).subscribe(
       (data) => {
         this.modalFields.forEach(field => {
           if (field.name === 'street') field.value = data.logradouro;
@@ -88,7 +89,6 @@ export class PatientsComponent implements OnInit {
           if (field.name === 'city') field.value = data.localidade;
           if (field.name === 'state') field.value = data.uf;
         });
-        console.log(data)
       },
       (err) => {
         this.toastService.showToast('CEP não encontrado!', 'error');
@@ -97,12 +97,12 @@ export class PatientsComponent implements OnInit {
   }
 
   openModal() {
-    this.selectedTab === 'Pacientes'
+    this.selectedTab = 'Pacientes'
     this.modalTitle = 'Adicionar Paciente';
     this.modalFields = [
       { label: 'Nome', name: 'name', type: 'text', value: '', placeholder: 'Digite o nome do paciente' },
       { label: 'CPF', name: 'cpf', type: 'text', value: '', placeholder: 'Digite o CPF do paciente' },
-      { label: 'Data de Aniversário', name: 'birth_date', type: 'date', value: '', placeholder: 'Digite a data de aniversário do paciente' },
+      { label: 'Data de Aniversário', name: 'birth_date', type: 'date', value: '' },
       { label: 'E-mail', name: 'email', type: 'email', value: '', placeholder: 'Digite o e-mail do paciente' },
       { label: 'Celular', name: 'telephone', type: 'tel', value: '', placeholder: 'Digite o celular do paciente' },
       { label: 'CEP', name: 'zip_code', type: 'text', value: '', placeholder: 'Digite o CEP', onBlur: this.handleCepBlur.bind(this) },
@@ -123,6 +123,8 @@ export class PatientsComponent implements OnInit {
   }
 
   handleSubmit() {
+    if (!this.verifyDataService.verifyData(this.modalFields, this.selectedTab)) return;
+
     if (!this.verifyDataService.verifyData(this.modalFields, this.selectedTab)) return;
 
     const formData: any = {};

@@ -5,6 +5,7 @@ import {FormsModule} from '@angular/forms';
 import {HttpClient, HttpClientModule, HttpHeaders} from '@angular/common/http';
 import {debounceTime, Observable, Subject, switchMap} from 'rxjs';
 import {ToastService} from '../../shared/services/toast.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-sidebar',
@@ -65,7 +66,7 @@ export class SidebarComponent {
   filteredFaqItems: { question: string; answer: string }[] = [];
   aiAnswer: string | null = null;
 
-  private apiUrl = 'http://localhost:8080/api/faq/ask';
+  private apiUrl = `${environment.apiUrl}/api/faq/ask`;
   private searchSubject = new Subject<string>();
 
   ngOnInit(): void {
@@ -85,8 +86,6 @@ export class SidebarComponent {
         { label: 'Relatórios', route: '/reports', icon: 'chart' },
       );
     }
-
-    this.menuItems.push({ label: 'Configurações', route: '/settings', icon: 'cog' },);
   }
 
   toggleCollapse(): void {

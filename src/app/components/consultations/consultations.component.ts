@@ -7,6 +7,7 @@ import {ToastService} from '../../shared/services/toast.service';
 import Swal from 'sweetalert2';
 import {forkJoin} from 'rxjs';
 import {VerifyDataService} from '../../shared/services/verifyData.service';
+import { environment } from '../../../environments/environment';
 
 interface Consultation {
   id: number;
@@ -75,7 +76,7 @@ export class ConsultationsComponent {
   doctorData: Doctor[] = [];
   patientData: Patient[] = [];
 
-  private apiUrl = 'http://localhost:8080/api/consultations';
+  private apiUrl = `${environment.apiUrl}/api/consultations`;
 
   constructor(private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
 
@@ -111,8 +112,8 @@ export class ConsultationsComponent {
 
     // Chamar os dois endpoints ao mesmo tempo usando forkJoin
     forkJoin({
-      doctors: this.http.get<Doctor[]>(`http://localhost:8080/api/doctors`, { headers }),
-      patients: this.http.get<Patient[]>(`http://localhost:8080/api/patients`, { headers })
+      doctors: this.http.get<Doctor[]>(`${environment.apiUrl}/api/doctors`, { headers }),
+      patients: this.http.get<Patient[]>(`${environment.apiUrl}/api/patients`, { headers })
     }).subscribe(({ doctors, patients }) => {
       this.doctorData = doctors;
       this.patientData = patients;
@@ -215,8 +216,8 @@ export class ConsultationsComponent {
     });
 
     forkJoin({
-      doctors: this.http.get<Doctor[]>(`http://localhost:8080/api/doctors`, { headers }),
-      patients: this.http.get<Patient[]>(`http://localhost:8080/api/patients`, { headers })
+      doctors: this.http.get<Doctor[]>(`${environment.apiUrl}/api/doctors`, { headers }),
+      patients: this.http.get<Patient[]>(`${environment.apiUrl}/api/patients`, { headers })
     }).subscribe(({ doctors, patients }) => {
       this.doctorData = doctors;
       this.patientData = patients;
@@ -286,8 +287,6 @@ export class ConsultationsComponent {
       status: formData['status'],
       observations: formData['observations'] || ''
     };
-
-    console.log(this.editingConsultationId)
 
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);

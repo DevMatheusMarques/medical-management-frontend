@@ -5,6 +5,7 @@ import {HttpClient, HttpClientModule, HttpHeaders} from '@angular/common/http';
 import {ToastService} from '../../shared/services/toast.service';
 import Swal from 'sweetalert2';
 import {VerifyDataService} from '../../shared/services/verifyData.service';
+import { environment } from '../../../environments/environment';
 
 interface User {
   username: string;
@@ -41,7 +42,7 @@ export class UsersComponent {
 
   userData: User[] = [];
 
-  private apiUrl = 'http://localhost:8080/api/users';
+  private apiUrl = `${environment.apiUrl}/api/users`;
 
   constructor(private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
 
@@ -67,7 +68,7 @@ export class UsersComponent {
   }
 
   openModal() {
-    this.selectedTab === 'Usuários'
+    this.selectedTab = 'Usuários'
     this.modalTitle = 'Adicionar Usuário';
     this.modalFields = [
       { label: 'Nome', name: 'username', type: 'text', value: '', placeholder: 'Digite o nome do usuário' },
@@ -112,7 +113,7 @@ export class UsersComponent {
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    const endpoint = 'http://localhost:8080/api/auth/register';
+    const endpoint = `${environment.apiUrl}/api/auth/register`;
     this.http.post(endpoint, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
@@ -125,23 +126,6 @@ export class UsersComponent {
       }
     );
   }
-
-  verifyData(): boolean {
-    const allFieldsFilled = this.modalFields.every(field => {
-      if (field.name === 'password') {
-        return true;
-      }
-      return field.value && field.value.trim() !== '';
-    });
-
-    if (!allFieldsFilled) {
-      this.toastService.showToast('Todos os campos precisam estar preenchidos!', 'error');
-      return false;
-    }
-
-    return true;
-  }
-
 
   editUser(user: any): void {
     this.selectedTab = 'Usuários';
@@ -200,7 +184,7 @@ export class UsersComponent {
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    const endpoint = `http://localhost:8080/api/users/${this.editingUserId}`;
+    const endpoint = `${this.apiUrl}/${this.editingUserId}`;
     this.http.put(endpoint, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
@@ -236,7 +220,7 @@ export class UsersComponent {
         const token = localStorage.getItem('authToken');
         const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-        const endpoint = `http://localhost:8080/api/users/${user.id}`;
+        const endpoint = `${this.apiUrl}/${user.id}`;
         this.http.delete(endpoint, { headers }).subscribe(
           response => {
             this.loadUsers();

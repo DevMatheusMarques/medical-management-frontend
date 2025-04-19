@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import Chart from 'chart.js/auto';
+import { environment } from '../../../environments/environment';
 
 interface DashboardData {
   patients: number[];
@@ -31,7 +32,7 @@ export class DashboardComponent implements OnInit {
     specialities: []
   };
 
-  private apiUrl = 'http://localhost:8080/api/dashboard';
+  private apiUrl = `${environment.apiUrl}/api/dashboard`;
 
   constructor(private http: HttpClient) { }
 
