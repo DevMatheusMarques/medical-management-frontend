@@ -58,10 +58,10 @@
       </div>
     </div>
     <div class="mt-6 flex justify-end space-x-4">
-      <button (click)="clearFilters()" class="px-4 py-2 text-gray-700 border rounded-md hover:bg-gray-50">
+      <button (click)="clearFilters()" class="px-4 py-2 text-gray-700 border rounded-md hover:bg-gray-50 cursor-pointer">
         Limpar Filtros
       </button>
-      <button (click)="generateReport()" class="bg-[#38b593] text-white px-4 py-2 rounded-md hover:bg-[#2a9577] transition">
+      <button (click)="generateReport()" class="bg-[#38b593] text-white px-4 py-2 rounded-md hover:bg-[#2a9577] transition cursor-pointer">
         Gerar Relatório
       </button>
     </div>
@@ -72,19 +72,19 @@
     <div class="p-4 border-b flex justify-between items-center">
       <h2 class="text-lg font-semibold">{{ selectedReport?.name }}</h2>
       <div class="flex space-x-2">
-        <button (click)="exportCSV()" class="flex items-center px-3 py-1.5 text-sm border rounded-md hover:bg-gray-50">
+        <button (click)="exportCSV()" class="flex items-center px-3 py-1.5 text-sm border rounded-md hover:bg-gray-50 cursor-pointer">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
           CSV
         </button>
-        <button (click)="exportPDF()" class="flex items-center px-3 py-1.5 text-sm border rounded-md hover:bg-gray-50">
+        <button (click)="exportPDF()" class="flex items-center px-3 py-1.5 text-sm border rounded-md hover:bg-gray-50 cursor-pointer">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
           </svg>
           PDF
         </button>
-        <button (click)="printReport()" class="flex items-center px-3 py-1.5 text-sm border rounded-md hover:bg-gray-50">
+        <button (click)="printReport()" class="flex items-center px-3 py-1.5 text-sm border rounded-md hover:bg-gray-50 cursor-pointer">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
           </svg>
@@ -219,19 +219,19 @@
     <div class="bg-white p-6 rounded-lg shadow">
       <h3 class="text-lg font-semibold mb-4">Ações</h3>
       <div class="space-y-3">
-        <button (click)="exportCSV()" class="w-full flex items-center justify-center px-4 py-2 border rounded-md hover:bg-gray-50">
+        <button (click)="exportCSV()" class="w-full flex items-center justify-center px-4 py-2 border rounded-md hover:bg-gray-50 cursor-pointer">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
           Exportar para CSV
         </button>
-        <button (click)="exportPDF()" class="w-full flex items-center justify-center px-4 py-2 border rounded-md hover:bg-gray-50">
+        <button (click)="exportPDF()" class="w-full flex items-center justify-center px-4 py-2 border rounded-md hover:bg-gray-50 cursor-pointer">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
           </svg>
           Exportar para PDF
         </button>
-        <button (click)="printReport()" class="w-full flex items-center justify-center px-4 py-2 border rounded-md hover:bg-gray-50">
+        <button (click)="printReport()" class="w-full flex items-center justify-center px-4 py-2 border rounded-md hover:bg-gray-50 cursor-pointer">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
           </svg>

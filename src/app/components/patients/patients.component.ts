@@ -125,8 +125,6 @@ export class PatientsComponent implements OnInit {
   handleSubmit() {
     if (!this.verifyDataService.verifyData(this.modalFields, this.selectedTab)) return;
 
-    if (!this.verifyDataService.verifyData(this.modalFields, this.selectedTab)) return;
-
     const formData: any = {};
     this.modalFields.forEach(field => {
       formData[field.name] = field.value;

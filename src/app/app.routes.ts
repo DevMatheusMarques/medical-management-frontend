@@ -6,6 +6,7 @@ import {DoctorsComponent} from './components/doctors/doctors.component';
 import {ConsultationsComponent} from './components/consultations/consultations.component';
 import {UsersComponent} from './components/users/users.component';
 import {ReportsComponent} from './components/reports/reports.component';
+import {SpecialtiesComponent} from './components/specialties/specialties.component';
 
 export const routes: Routes = [
   { path: '', component: AuthComponent },
@@ -15,5 +16,6 @@ export const routes: Routes = [
   { path: 'consultations', component: ConsultationsComponent },
   { path: 'users', component: UsersComponent },
   { path: 'reports', component: ReportsComponent },
+  { path: 'specialties', component: SpecialtiesComponent },
   { path: '**', redirectTo: '' }
 ];

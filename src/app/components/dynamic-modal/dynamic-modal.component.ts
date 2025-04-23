@@ -25,7 +25,7 @@ export class DynamicModalComponent {
   }
 
   onSaveClick() {
-    const isAdding = ['Adicionar Paciente', 'Adicionar Médico', 'Adicionar Consulta', 'Adicionar Usuário'].includes(this.title);
+    const isAdding = ['Adicionar Paciente', 'Adicionar Médico', 'Adicionar Consulta', 'Adicionar Usuário', 'Adicionar Especialidade'].includes(this.title);
 
     isAdding ? this.submit.emit() : this.submitEdit.emit();
   }

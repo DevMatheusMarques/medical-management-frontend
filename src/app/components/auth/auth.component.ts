@@ -14,7 +14,7 @@ import { environment } from '../../../environments/environment';
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
-    HttpClientModule,  // Adicionando HttpClientModule aos imports
+    HttpClientModule,
   ],
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.css']
