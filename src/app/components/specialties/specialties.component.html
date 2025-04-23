@@ -1,0 +1,20 @@
+<app-data-table
+  [title]="'Especialidades'"
+  [columns]="specialtiesColumns"
+  [data]="specialtyData || []"
+  [selectedTab]="'Especialidade'"
+  (addClickedView)="viewSpecialty($event)"
+  (addClicked)="openModal()"
+  (addClickedEdit)="editSpecialty($event)"
+  (addClickedRemove)="deleteSpecialty($event)">
+</app-data-table>
+
+<app-dynamic-modal
+  [title]="modalTitle"
+  [fields]="modalFields"
+  [show]="showModal"
+  [isViewMode]="viewMode"
+  (close)="showModal = false"
+  (submit)="handleSubmit()"
+  (submitEdit)="handleSubmitEdit()">
+</app-dynamic-modal>
