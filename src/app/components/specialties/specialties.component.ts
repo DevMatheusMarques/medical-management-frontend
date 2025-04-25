@@ -6,6 +6,8 @@ import Swal from 'sweetalert2';
 import {DynamicModalComponent} from '../dynamic-modal/dynamic-modal.component';
 import {VerifyDataService} from '../../shared/services/verifyData.service';
 import { environment } from '../../../environments/environment';
+import {GenericDataService} from '../../shared/services/generic-data.service';
+import {ActivatedRoute} from '@angular/router';
 
 interface Specialty {
   name: string;
@@ -31,7 +33,6 @@ export class SpecialtiesComponent implements OnInit {
   modalTitle = '';
   modalFields: any[] = [];
   editingSpecialtyId = '';
-  isDataLoaded = false;
 
   specialtiesColumns: Column[] = [
     { key: 'name', header: 'Nome', type: 'text' },
@@ -42,25 +43,10 @@ export class SpecialtiesComponent implements OnInit {
 
   private apiUrl = `${environment.apiUrl}/api/specialties`;
 
-  constructor(private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
+  constructor(private dataService: GenericDataService, private route: ActivatedRoute, private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
 
   ngOnInit(): void {
-    if (!this.isDataLoaded) this.loadSpecialtys();
-  }
-
-  loadSpecialtys(): void {
-    const token = localStorage.getItem('authToken');
-
-    if (!token) return;
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
-
-    this.http.get<Specialty[]>(this.apiUrl, { headers }).subscribe((data) => {
-      this.specialtyData = data;
-      this.isDataLoaded = true;
-    });
+    this.specialtyData = this.route.snapshot.data['data'];
   }
 
   openModal() {
@@ -96,8 +82,10 @@ export class SpecialtiesComponent implements OnInit {
     this.http.post(this.apiUrl, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
-        this.isDataLoaded = false;
-        this.loadSpecialtys();
+        this.dataService.clear('specialties');
+        this.dataService.get<any[]>('specialties').subscribe((data) => {
+          this.specialtyData = data;
+        });
         this.toastService.showToast('Especialidade cadastrada com sucesso!', 'success');
       },
       error => {
@@ -139,8 +127,10 @@ export class SpecialtiesComponent implements OnInit {
     this.http.put(endpoint, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
-        this.isDataLoaded = false;
-        this.loadSpecialtys();
+        this.dataService.clear('specialties');
+        this.dataService.get<any[]>('specialties').subscribe((data) => {
+          this.specialtyData = data;
+        });
         this.toastService.showToast('Especialidade atualizada com sucesso!', 'success');
       },
       error => {
@@ -175,8 +165,10 @@ export class SpecialtiesComponent implements OnInit {
         const endpoint = `${this.apiUrl}/${specialty.id}`;
         this.http.delete(endpoint, { headers }).subscribe(
           response => {
-            this.loadSpecialtys();
-            this.isDataLoaded = false;
+            this.dataService.clear('specialties');
+            this.dataService.get<any[]>('specialties').subscribe((data) => {
+              this.specialtyData = data;
+            });
             this.toastService.showToast('Especialidade excluído com sucesso!', 'success');
           },
           error => {

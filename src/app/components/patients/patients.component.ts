@@ -6,6 +6,8 @@ import Swal from 'sweetalert2';
 import {DynamicModalComponent} from '../dynamic-modal/dynamic-modal.component';
 import {VerifyDataService} from '../../shared/services/verifyData.service';
 import { environment } from '../../../environments/environment';
+import {ActivatedRoute} from '@angular/router';
+import {GenericDataService} from '../../shared/services/generic-data.service';
 
 interface Patient {
   name: string;
@@ -34,7 +36,6 @@ export class PatientsComponent implements OnInit {
   modalTitle = '';
   modalFields: any[] = [];
   editingPatientId = '';
-  isDataLoaded = false;
 
   patientsColumns: Column[] = [
     { key: 'name', header: 'Nome', type: 'text' },
@@ -48,24 +49,10 @@ export class PatientsComponent implements OnInit {
 
   private apiUrl = `${environment.apiUrl}/api/patients`;
 
-  constructor(private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
+  constructor(private dataService: GenericDataService, private route: ActivatedRoute, private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
 
   ngOnInit(): void {
-    if (!this.isDataLoaded) this.loadPatients();
-  }
-
-  loadPatients(): void {
-    const token = localStorage.getItem('authToken');
-    if (!token) return;
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
-
-    this.http.get<Patient[]>(this.apiUrl, { headers }).subscribe((data) => {
-      this.patientData = data;
-      this.isDataLoaded = true;
-    });
+    this.patientData = this.route.snapshot.data['data'];
   }
 
   handleCepBlur(event: any) {
@@ -158,8 +145,10 @@ export class PatientsComponent implements OnInit {
     this.http.post(this.apiUrl, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
-        this.isDataLoaded = false;
-        this.loadPatients();
+        this.dataService.clear('patients');
+        this.dataService.get<any[]>('patients').subscribe((data) => {
+          this.patientData = data;
+        });
         this.toastService.showToast('Paciente cadastrado com sucesso!', 'success');
       },
       error => {
@@ -252,8 +241,10 @@ export class PatientsComponent implements OnInit {
     this.http.put(endpoint, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
-        this.isDataLoaded = false;
-        this.loadPatients();
+        this.dataService.clear('patients');
+        this.dataService.get<any[]>('patients').subscribe((data) => {
+          this.patientData = data;
+        });
         this.toastService.showToast('Paciente atualizado com sucesso!', 'success');
       },
       error => {
@@ -288,8 +279,10 @@ export class PatientsComponent implements OnInit {
         const endpoint = `${this.apiUrl}/${patient.id}`;
         this.http.delete(endpoint, { headers }).subscribe(
           response => {
-            this.isDataLoaded = false;
-            this.loadPatients();
+            this.dataService.clear('patients');
+            this.dataService.get<any[]>('patients').subscribe((data) => {
+              this.patientData = data;
+            });
             this.toastService.showToast('Paciente excluído com sucesso!', 'success');
           },
           error => {

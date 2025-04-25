@@ -7,6 +7,8 @@ import Swal from 'sweetalert2';
 import {DynamicModalComponent} from '../dynamic-modal/dynamic-modal.component';
 import {VerifyDataService} from '../../shared/services/verifyData.service';
 import { environment } from '../../../environments/environment';
+import {GenericDataService} from '../../shared/services/generic-data.service';
+import {ActivatedRoute} from '@angular/router';
 
 interface Doctor {
   name: string;
@@ -38,7 +40,6 @@ export class DoctorsComponent implements OnInit {
   modalFields: any[] = [];
   editingDoctorId = '';
   specialtyOptions: any[] = [];
-  isDataLoaded = false;
 
   doctorsColumns: Column[] = [
     { key: 'name', header: 'Nome', type: 'text' },
@@ -53,7 +54,7 @@ export class DoctorsComponent implements OnInit {
 
   private apiUrl = `${environment.apiUrl}/api/doctors`;
 
-  constructor(private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
+  constructor(private dataService: GenericDataService, private route: ActivatedRoute, private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
 
   loadSpecialties(): void {
     const token = localStorage.getItem('authToken');
@@ -68,25 +69,8 @@ export class DoctorsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (!this.isDataLoaded) {
-      this.loadDoctors();
-      this.loadSpecialties();
-    }
-  }
-
-  loadDoctors(): void {
-    const token = localStorage.getItem('authToken');
-
-    if (!token) return;
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
-
-    this.http.get<Doctor[]>(this.apiUrl, { headers }).subscribe((data) => {
-      this.doctorData = data;
-      this.isDataLoaded = true;
-    });
+    this.doctorData = this.route.snapshot.data['data'];
+    this.loadSpecialties();
   }
 
   openModal() {
@@ -130,8 +114,10 @@ export class DoctorsComponent implements OnInit {
     this.http.post(this.apiUrl, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
-        this.isDataLoaded = false;
-        this.loadDoctors();
+        this.dataService.clear('doctors');
+        this.dataService.get<any[]>('doctors').subscribe((data) => {
+          this.doctorData = data;
+        });
         this.toastService.showToast('Médico cadastrado com sucesso!', 'success');
       },
       error => {
@@ -181,8 +167,10 @@ export class DoctorsComponent implements OnInit {
     this.http.put(endpoint, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
-        this.isDataLoaded = false;
-        this.loadDoctors();
+        this.dataService.clear('doctors');
+        this.dataService.get<any[]>('doctors').subscribe((data) => {
+          this.doctorData = data;
+        });
         this.toastService.showToast('Médico atualizado com sucesso!', 'success');
       },
       error => {
@@ -217,8 +205,10 @@ export class DoctorsComponent implements OnInit {
         const endpoint = `${this.apiUrl}/${doctor.id}`;
         this.http.delete(endpoint, { headers }).subscribe(
           response => {
-            this.isDataLoaded = false;
-            this.loadDoctors();
+            this.dataService.clear('doctors');
+            this.dataService.get<any[]>('doctors').subscribe((data) => {
+              this.doctorData = data;
+            });
             this.toastService.showToast('Médico excluído com sucesso!', 'success');
           },
           error => {

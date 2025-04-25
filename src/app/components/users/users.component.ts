@@ -6,6 +6,8 @@ import {ToastService} from '../../shared/services/toast.service';
 import Swal from 'sweetalert2';
 import {VerifyDataService} from '../../shared/services/verifyData.service';
 import { environment } from '../../../environments/environment';
+import {GenericDataService} from '../../shared/services/generic-data.service';
+import {ActivatedRoute} from '@angular/router';
 
 interface User {
   username: string;
@@ -32,7 +34,6 @@ export class UsersComponent {
   modalTitle = '';
   modalFields: any[] = [];
   editingUserId = '';
-  isDataLoaded = false;
 
   usersColumns: Column[] = [
     { key: 'username', header: 'Nome', type: 'text' },
@@ -45,25 +46,10 @@ export class UsersComponent {
 
   private apiUrl = `${environment.apiUrl}/api/users`;
 
-  constructor(private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
+  constructor(private dataService: GenericDataService, private route: ActivatedRoute, private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
 
   ngOnInit(): void {
-    if (!this.isDataLoaded) this.loadUsers();
-  }
-
-  loadUsers(): void {
-    const token = localStorage.getItem('authToken'); // 🔹 Busca o token salvo
-
-    if (!token) return;
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
-
-    this.http.get<User[]>(this.apiUrl, { headers }).subscribe((data) => {
-      this.userData = data;
-      this.isDataLoaded = true;
-    });
+    this.userData = this.route.snapshot.data['data'];
   }
 
   openModal() {
@@ -114,8 +100,10 @@ export class UsersComponent {
     this.http.post(endpoint, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
-        this.isDataLoaded = false;
-        this.loadUsers();
+        this.dataService.clear('users');
+        this.dataService.get<any[]>('users').subscribe((data) => {
+          this.userData = data;
+        });
         this.toastService.showToast('Usuário cadastrado com sucesso!', 'success');
       },
       error => {
@@ -184,8 +172,10 @@ export class UsersComponent {
     this.http.put(endpoint, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
-        this.isDataLoaded = false;
-        this.loadUsers();
+        this.dataService.clear('users');
+        this.dataService.get<any[]>('users').subscribe((data) => {
+          this.userData = data;
+        });
         this.toastService.showToast('Usuário atualizado com sucesso!', 'success');
       },
       error => {
@@ -220,8 +210,10 @@ export class UsersComponent {
         const endpoint = `${this.apiUrl}/${user.id}`;
         this.http.delete(endpoint, { headers }).subscribe(
           response => {
-            this.isDataLoaded = false;
-            this.loadUsers();
+            this.dataService.clear('users');
+            this.dataService.get<any[]>('users').subscribe((data) => {
+              this.userData = data;
+            });
             this.toastService.showToast('Usuário excluído com sucesso!', 'success');
           },
           error => {

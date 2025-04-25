@@ -8,6 +8,8 @@ import Swal from 'sweetalert2';
 import {forkJoin} from 'rxjs';
 import {VerifyDataService} from '../../shared/services/verifyData.service';
 import { environment } from '../../../environments/environment';
+import {GenericDataService} from '../../shared/services/generic-data.service';
+import {ActivatedRoute} from '@angular/router';
 
 interface Consultation {
   id: number;
@@ -61,7 +63,6 @@ export class ConsultationsComponent {
   modalTitle = '';
   modalFields: any[] = [];
   editingConsultationId = '';
-  isDataLoaded = false;
 
   consultationsColumns: Column[] = [
     { key: 'patient.name', header: 'Paciente', type: 'text' },
@@ -79,27 +80,10 @@ export class ConsultationsComponent {
 
   private apiUrl = `${environment.apiUrl}/api/consultations`;
 
-  constructor(private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
+  constructor(private dataService: GenericDataService, private route: ActivatedRoute, private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
 
   ngOnInit(): void {
-    if (!this.isDataLoaded) this.loadConsultations();
-  }
-
-  loadConsultations(): void {
-    const token = localStorage.getItem('authToken');
-
-    if (!token) {
-      return;
-    }
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
-
-    this.http.get<Consultation[]>(this.apiUrl, { headers }).subscribe((data) => {
-      this.consultationData = data;
-      this.isDataLoaded = true;
-    });
+    this.consultationData = this.route.snapshot.data['data'];
   }
 
   openModal() {
@@ -185,8 +169,10 @@ export class ConsultationsComponent {
     this.http.post(this.apiUrl, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
-        this.isDataLoaded = false;
-        this.loadConsultations();
+        this.dataService.clear('consultations');
+        this.dataService.get<any[]>('consultations').subscribe((data) => {
+          this.consultationData = data;
+        });
         this.toastService.showToast('Consulta cadastrada com sucesso!', 'success');
       },
       error => {
@@ -297,8 +283,10 @@ export class ConsultationsComponent {
     this.http.put(endpoint, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
-        this.isDataLoaded = false;
-        this.loadConsultations();
+        this.dataService.clear('consultations');
+        this.dataService.get<any[]>('consultations').subscribe((data) => {
+          this.consultationData = data;
+        });
         this.toastService.showToast('Consulta atualizada com sucesso!', 'success');
       },
       error => {
@@ -333,8 +321,10 @@ export class ConsultationsComponent {
         const endpoint = `${this.apiUrl}/${consultation.id}`;
         this.http.delete(endpoint, { headers }).subscribe(
           response => {
-            this.isDataLoaded = false;
-            this.loadConsultations();
+            this.dataService.clear('consultations');
+            this.dataService.get<any[]>('consultations').subscribe((data) => {
+              this.consultationData = data;
+            });
             this.toastService.showToast('Consulta excluída com sucesso!', 'success');
           },
           error => {
