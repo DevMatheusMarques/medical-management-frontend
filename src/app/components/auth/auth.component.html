@@ -13,7 +13,7 @@
       <div class="max-w-md mx-auto">
         <h2 class="text-4xl font-bold text-[#38b593] mb-8 text-center">Acessar Sistema</h2>
 
-        <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-6">
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
           <div class="relative">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -28,7 +28,7 @@
             >
           </div>
 
-          <div class="relative">
+          <div class="relative mt-6">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
@@ -56,7 +56,7 @@
             </button>
           </div>
 
-          <div class="flex items-center justify-between text-sm">
+          <div class="flex items-center justify-between text-sm mt-6">
             <div class="flex items-center">
               <input
                 type="checkbox"
@@ -71,7 +71,7 @@
 
           <button
             type="submit"
-            class="w-full bg-[#38b593] text-white rounded-full py-3 mt-4 hover:bg-[#2a9577] transition-colors cursor-pointer">
+            class="w-full bg-[#38b593] text-white rounded-full py-3 mt-6 hover:bg-[#2a9577] transition-colors cursor-pointer">
             ACESSAR
           </button>
         </form>

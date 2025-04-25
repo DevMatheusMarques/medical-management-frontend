@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';  // Importação do CommonModule
 import { jwtDecode } from 'jwt-decode';
 import {ToastService} from '../../shared/services/toast.service';
 import { environment } from '../../../environments/environment';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-auth',
@@ -33,6 +34,26 @@ export class AuthComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: "bg-[#38b593] hover:bg-[#2a9577] text-white py-2 px-4 rounded cursor-pointer focus:outline-none focus:ring-0",
+        actions: "flex justify-center"
+      },
+      buttonsStyling: false
+    });
+    swalWithBootstrapButtons.fire({
+      title: "Acesso de Teste",
+      html: `
+    <p class="text-gray-700 mb-2">Use as credenciais abaixo para acessar o sistema:</p>
+    <div class="bg-gray-100 p-4 rounded text-left">
+      <p><strong>Usuário:</strong> Teste</p>
+      <p><strong>Senha:</strong> teste</p>
+    </div>
+  `,
+      icon: "info",
+      confirmButtonText: "Entendi"
+    });
+
     const savedUsername = localStorage.getItem('savedUsername') || '';
 
     this.loginForm = this.fb.group({

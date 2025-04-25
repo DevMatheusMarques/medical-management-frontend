@@ -188,9 +188,9 @@ export class UsersComponent {
   deleteUser(user: any): void {
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
-        confirmButton: "bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded",
-        cancelButton: "bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded",
-        actions: "flex justify-center space-x-4"
+        confirmButton: "bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded cursor-pointer",
+        cancelButton: "bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded me-4 cursor-pointer",
+        actions: "flex justify-center"
       },
       buttonsStyling: false
     });

@@ -48,8 +48,8 @@
           <input *ngSwitchCase="'time'" [name]="field.name" [placeholder]="field.placeholder" [(ngModel)]="field.value" type="time" [disabled]="field.disable"
                  class="border border-gray-300 rounded-md px-4 py-2 w-full" required />
 
-          <div *ngSwitchCase="'radio'" class="flex items-center space-x-4">
-            <label *ngFor="let option of field.options">
+          <div *ngSwitchCase="'radio'" class="flex items-center">
+            <label *ngFor="let option of field.options" class="me-4">
               <input type="radio" [name]="field.name" [(ngModel)]="field.value" [value]="option.value" class="mr-2" required [disabled]="field.disable">
               {{ option.label }}
             </label>
@@ -72,8 +72,8 @@
       </div>
     </div>
 
-    <div class="flex justify-end space-x-2 mt-4">
-      <button (click)="closeModal()" class="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 transition cursor-pointer">
+    <div class="flex justify-end mt-4">
+      <button (click)="closeModal()" class="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 transition cursor-pointer me-2">
         {{ isViewMode ? 'Voltar' : 'Cancelar' }}
       </button>
       <button *ngIf="!isViewMode" (click)="onSaveClick()"
