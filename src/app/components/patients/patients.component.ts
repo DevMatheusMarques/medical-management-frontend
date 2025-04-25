@@ -65,7 +65,7 @@ export class PatientsComponent implements OnInit {
       'Authorization': `Bearer ${token}`
     });
 
-    this.http.get<any>(`http://168.231.89.199:8080/api/cep/${cep}`, { headers }).subscribe(
+    this.http.get<any>(`${environment.apiUrl}/api/cep/${cep}`, { headers }).subscribe(
       (data) => {
         this.modalFields.forEach(field => {
           if (field.name === 'street') field.value = data.logradouro;
