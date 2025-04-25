@@ -38,6 +38,7 @@ export class DoctorsComponent implements OnInit {
   modalFields: any[] = [];
   editingDoctorId = '';
   specialtyOptions: any[] = [];
+  isDataLoaded = false;
 
   doctorsColumns: Column[] = [
     { key: 'name', header: 'Nome', type: 'text' },
@@ -67,17 +68,16 @@ export class DoctorsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadDoctors();
-    this.loadSpecialties();
+    if (!this.isDataLoaded) {
+      this.loadDoctors();
+      this.loadSpecialties();
+    }
   }
 
   loadDoctors(): void {
     const token = localStorage.getItem('authToken');
 
-    if (!token) {
-      console.error('Token não encontrado!');
-      return;
-    }
+    if (!token) return;
 
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`
@@ -85,6 +85,7 @@ export class DoctorsComponent implements OnInit {
 
     this.http.get<Doctor[]>(this.apiUrl, { headers }).subscribe((data) => {
       this.doctorData = data;
+      this.isDataLoaded = true;
     });
   }
 
@@ -129,6 +130,7 @@ export class DoctorsComponent implements OnInit {
     this.http.post(this.apiUrl, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
+        this.isDataLoaded = false;
         this.loadDoctors();
         this.toastService.showToast('Médico cadastrado com sucesso!', 'success');
       },
@@ -179,6 +181,7 @@ export class DoctorsComponent implements OnInit {
     this.http.put(endpoint, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
+        this.isDataLoaded = false;
         this.loadDoctors();
         this.toastService.showToast('Médico atualizado com sucesso!', 'success');
       },
@@ -214,6 +217,7 @@ export class DoctorsComponent implements OnInit {
         const endpoint = `${this.apiUrl}/${doctor.id}`;
         this.http.delete(endpoint, { headers }).subscribe(
           response => {
+            this.isDataLoaded = false;
             this.loadDoctors();
             this.toastService.showToast('Médico excluído com sucesso!', 'success');
           },

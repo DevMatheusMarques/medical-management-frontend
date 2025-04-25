@@ -32,6 +32,7 @@ export class UsersComponent {
   modalTitle = '';
   modalFields: any[] = [];
   editingUserId = '';
+  isDataLoaded = false;
 
   usersColumns: Column[] = [
     { key: 'username', header: 'Nome', type: 'text' },
@@ -47,16 +48,13 @@ export class UsersComponent {
   constructor(private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
 
   ngOnInit(): void {
-    this.loadUsers();  // Chama o método para carregar os dados dos usuários
+    if (!this.isDataLoaded) this.loadUsers();
   }
 
   loadUsers(): void {
     const token = localStorage.getItem('authToken'); // 🔹 Busca o token salvo
 
-    if (!token) {
-      console.error('Token não encontrado!');
-      return;
-    }
+    if (!token) return;
 
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`
@@ -64,6 +62,7 @@ export class UsersComponent {
 
     this.http.get<User[]>(this.apiUrl, { headers }).subscribe((data) => {
       this.userData = data;
+      this.isDataLoaded = true;
     });
   }
 
@@ -108,8 +107,6 @@ export class UsersComponent {
       status: 'Ativo',
     };
 
-    console.log(formData.login)
-
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
@@ -117,6 +114,7 @@ export class UsersComponent {
     this.http.post(endpoint, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
+        this.isDataLoaded = false;
         this.loadUsers();
         this.toastService.showToast('Usuário cadastrado com sucesso!', 'success');
       },
@@ -179,8 +177,6 @@ export class UsersComponent {
       dataToSend.password = formData['password'];
     }
 
-    console.log(this.editingUserId)
-
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
@@ -188,6 +184,7 @@ export class UsersComponent {
     this.http.put(endpoint, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
+        this.isDataLoaded = false;
         this.loadUsers();
         this.toastService.showToast('Usuário atualizado com sucesso!', 'success');
       },
@@ -223,6 +220,7 @@ export class UsersComponent {
         const endpoint = `${this.apiUrl}/${user.id}`;
         this.http.delete(endpoint, { headers }).subscribe(
           response => {
+            this.isDataLoaded = false;
             this.loadUsers();
             this.toastService.showToast('Usuário excluído com sucesso!', 'success');
           },

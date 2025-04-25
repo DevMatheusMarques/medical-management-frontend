@@ -31,6 +31,7 @@ export class SpecialtiesComponent implements OnInit {
   modalTitle = '';
   modalFields: any[] = [];
   editingSpecialtyId = '';
+  isDataLoaded = false;
 
   specialtiesColumns: Column[] = [
     { key: 'name', header: 'Nome', type: 'text' },
@@ -44,16 +45,13 @@ export class SpecialtiesComponent implements OnInit {
   constructor(private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
 
   ngOnInit(): void {
-    this.loadSpecialtys();
+    if (!this.isDataLoaded) this.loadSpecialtys();
   }
 
   loadSpecialtys(): void {
     const token = localStorage.getItem('authToken');
 
-    if (!token) {
-      console.error('Token não encontrado!');
-      return;
-    }
+    if (!token) return;
 
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`
@@ -61,6 +59,7 @@ export class SpecialtiesComponent implements OnInit {
 
     this.http.get<Specialty[]>(this.apiUrl, { headers }).subscribe((data) => {
       this.specialtyData = data;
+      this.isDataLoaded = true;
     });
   }
 
@@ -94,11 +93,10 @@ export class SpecialtiesComponent implements OnInit {
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    console.log("chegou aqui")
-
     this.http.post(this.apiUrl, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
+        this.isDataLoaded = false;
         this.loadSpecialtys();
         this.toastService.showToast('Especialidade cadastrada com sucesso!', 'success');
       },
@@ -141,6 +139,7 @@ export class SpecialtiesComponent implements OnInit {
     this.http.put(endpoint, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
+        this.isDataLoaded = false;
         this.loadSpecialtys();
         this.toastService.showToast('Especialidade atualizada com sucesso!', 'success');
       },
@@ -177,6 +176,7 @@ export class SpecialtiesComponent implements OnInit {
         this.http.delete(endpoint, { headers }).subscribe(
           response => {
             this.loadSpecialtys();
+            this.isDataLoaded = false;
             this.toastService.showToast('Especialidade excluído com sucesso!', 'success');
           },
           error => {

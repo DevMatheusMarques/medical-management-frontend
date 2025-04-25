@@ -34,6 +34,7 @@ export class PatientsComponent implements OnInit {
   modalTitle = '';
   modalFields: any[] = [];
   editingPatientId = '';
+  isDataLoaded = false;
 
   patientsColumns: Column[] = [
     { key: 'name', header: 'Nome', type: 'text' },
@@ -50,16 +51,12 @@ export class PatientsComponent implements OnInit {
   constructor(private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
 
   ngOnInit(): void {
-    this.loadPatients();
+    if (!this.isDataLoaded) this.loadPatients();
   }
 
   loadPatients(): void {
     const token = localStorage.getItem('authToken');
-
-    if (!token) {
-      console.error('Token não encontrado!');
-      return;
-    }
+    if (!token) return;
 
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`
@@ -67,6 +64,7 @@ export class PatientsComponent implements OnInit {
 
     this.http.get<Patient[]>(this.apiUrl, { headers }).subscribe((data) => {
       this.patientData = data;
+      this.isDataLoaded = true;
     });
   }
 
@@ -160,6 +158,7 @@ export class PatientsComponent implements OnInit {
     this.http.post(this.apiUrl, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
+        this.isDataLoaded = false;
         this.loadPatients();
         this.toastService.showToast('Paciente cadastrado com sucesso!', 'success');
       },
@@ -253,6 +252,7 @@ export class PatientsComponent implements OnInit {
     this.http.put(endpoint, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
+        this.isDataLoaded = false;
         this.loadPatients();
         this.toastService.showToast('Paciente atualizado com sucesso!', 'success');
       },
@@ -288,6 +288,7 @@ export class PatientsComponent implements OnInit {
         const endpoint = `${this.apiUrl}/${patient.id}`;
         this.http.delete(endpoint, { headers }).subscribe(
           response => {
+            this.isDataLoaded = false;
             this.loadPatients();
             this.toastService.showToast('Paciente excluído com sucesso!', 'success');
           },

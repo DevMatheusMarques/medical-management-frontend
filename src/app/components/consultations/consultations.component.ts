@@ -61,6 +61,7 @@ export class ConsultationsComponent {
   modalTitle = '';
   modalFields: any[] = [];
   editingConsultationId = '';
+  isDataLoaded = false;
 
   consultationsColumns: Column[] = [
     { key: 'patient.name', header: 'Paciente', type: 'text' },
@@ -81,14 +82,13 @@ export class ConsultationsComponent {
   constructor(private http: HttpClient, private toastService: ToastService, private verifyDataService: VerifyDataService) {}
 
   ngOnInit(): void {
-    this.loadConsultations();
+    if (!this.isDataLoaded) this.loadConsultations();
   }
 
   loadConsultations(): void {
     const token = localStorage.getItem('authToken');
 
     if (!token) {
-      console.error('Token não encontrado!');
       return;
     }
 
@@ -98,6 +98,7 @@ export class ConsultationsComponent {
 
     this.http.get<Consultation[]>(this.apiUrl, { headers }).subscribe((data) => {
       this.consultationData = data;
+      this.isDataLoaded = true;
     });
   }
 
@@ -184,6 +185,7 @@ export class ConsultationsComponent {
     this.http.post(this.apiUrl, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
+        this.isDataLoaded = false;
         this.loadConsultations();
         this.toastService.showToast('Consulta cadastrada com sucesso!', 'success');
       },
@@ -295,6 +297,7 @@ export class ConsultationsComponent {
     this.http.put(endpoint, dataToSend, { headers }).subscribe(
       response => {
         this.closeModal();
+        this.isDataLoaded = false;
         this.loadConsultations();
         this.toastService.showToast('Consulta atualizada com sucesso!', 'success');
       },
@@ -330,6 +333,7 @@ export class ConsultationsComponent {
         const endpoint = `${this.apiUrl}/${consultation.id}`;
         this.http.delete(endpoint, { headers }).subscribe(
           response => {
+            this.isDataLoaded = false;
             this.loadConsultations();
             this.toastService.showToast('Consulta excluída com sucesso!', 'success');
           },
