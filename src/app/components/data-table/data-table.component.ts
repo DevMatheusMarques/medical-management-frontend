@@ -37,6 +37,7 @@ export class DataTableComponent implements OnInit, AfterViewInit {
   itemsPerPage: number = 8;
   currentPage = 1;
   totalItems: number = 0;
+  onlyToday = false;
 
   constructor(private el: ElementRef, private http: HttpClient,  private toastService: ToastService) {}
 
@@ -51,6 +52,10 @@ export class DataTableComponent implements OnInit, AfterViewInit {
   @HostListener('window:resize', [])
   onResize(): void {
     this.updateItemsPerPage();
+  }
+
+  toggleTodayFilter() {
+    this.onlyToday = !this.onlyToday;
   }
 
   updateItemsPerPage(): void {
@@ -103,6 +108,13 @@ export class DataTableComponent implements OnInit, AfterViewInit {
         )
       )
       : [...this.data];
+
+    if (this.selectedTab === 'Consulta' && this.onlyToday) {
+      const today = new Date();
+      const todayFormatted = today.toLocaleDateString('pt-BR');
+
+      filteredData = filteredData.filter(item => item.date === todayFormatted);
+    }
 
     filteredData.sort((a, b) => {
       const dateA = new Date(a.created_at).getTime();
