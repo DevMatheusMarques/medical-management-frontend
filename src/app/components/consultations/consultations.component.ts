@@ -100,8 +100,8 @@ export class ConsultationsComponent {
       doctors: this.http.get<Doctor[]>(`${environment.apiUrl}/api/doctors`, { headers }),
       patients: this.http.get<Patient[]>(`${environment.apiUrl}/api/patients`, { headers })
     }).subscribe(({ doctors, patients }) => {
-      this.doctorData = doctors;
-      this.patientData = patients;
+      this.doctorData = doctors.sort((a, b) => a.name.localeCompare(b.name));
+      this.patientData = patients.sort((a, b) => a.name.localeCompare(b.name));
       this.modalFields = [
         {
           label: 'Paciente',
@@ -207,8 +207,8 @@ export class ConsultationsComponent {
       doctors: this.http.get<Doctor[]>(`${environment.apiUrl}/api/doctors`, { headers }),
       patients: this.http.get<Patient[]>(`${environment.apiUrl}/api/patients`, { headers })
     }).subscribe(({ doctors, patients }) => {
-      this.doctorData = doctors;
-      this.patientData = patients;
+      this.doctorData = doctors.sort((a, b) => a.name.localeCompare(b.name));
+      this.patientData = patients.sort((a, b) => a.name.localeCompare(b.name));
       this.modalFields = [
         {
           label: 'Paciente',
@@ -262,8 +262,8 @@ export class ConsultationsComponent {
     });
 
     let formattedDate = '';
-    if (formData['birth_date']) {
-      const dateObj = new Date(formData['birth_date'] + 'T12:00:00');
+    if (formData['date']) {
+      const dateObj = new Date(formData['date'] + 'T12:00:00');
       formattedDate = dateObj.toLocaleDateString('pt-BR');
     }
 
