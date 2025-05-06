@@ -1,4 +1,4 @@
-<div class="container mx-auto p-6">
+<div class="container mx-auto p-6 bg-gray-50">
   <h1 class="text-2xl font-bold mb-6">Relatórios</h1>
 
   <!-- Seleção de Relatório -->
@@ -67,6 +67,28 @@
     </div>
   </div>
 
+  <div *ngIf="loading" class="bg-white rounded-lg shadow p-6 text-center text-gray-500">
+    <div class="flex flex-col items-center justify-center animate-pulse">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-[#38b593] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <p class="text-base">Gerando relatório...</p>
+      <small class="text-gray-400">Aguarde um momento</small>
+    </div>
+  </div>
+
+  <div *ngIf="selectedReport && reportData.length === 0" class="bg-white rounded-lg shadow p-6 text-center text-gray-500">
+    <div class="flex flex-col items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-[#38b593] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+      <p class="text-base">Nenhum dado encontrado</p>
+      <small class="text-gray-400">Tente ajustar os filtros</small>
+    </div>
+  </div>
+
   <!-- Resultado do Relatório -->
   <div *ngIf="reportData.length > 0" class="bg-white rounded-lg shadow overflow-hidden">
     <div class="p-4 border-b flex justify-between items-center">
@@ -117,17 +139,6 @@
                     </span>
               <span *ngSwitchDefault>{{ getNestedValue(item, column.key) }}</span>
             </ng-container>
-          </td>
-        </tr>
-        <tr *ngIf="reportData.length === 0">
-          <td [attr.colspan]="reportColumns.length" class="text-center py-6">
-            <div class="flex flex-col items-center justify-center text-gray-500">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <p class="mt-4 mb-0 text-base text-gray-700">Nenhum dado encontrado</p>
-              <small>Tente ajustar os filtros</small>
-            </div>
           </td>
         </tr>
         </tbody>

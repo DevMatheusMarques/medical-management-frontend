@@ -87,6 +87,7 @@ export class ReportsComponent implements OnInit {
   currentPage: number = 1;
   itemsPerPage: number = 10;
   Math = Math;
+  loading: boolean = false;
 
   private apiUrl = `${environment.apiUrl}/api/reports`;
 
@@ -170,6 +171,7 @@ export class ReportsComponent implements OnInit {
   }
 
   generateReport(): void {
+    this.loading = true;
     if (!this.selectedReport) return;
 
     const reportId = this.selectedReport.id;
@@ -189,8 +191,8 @@ export class ReportsComponent implements OnInit {
         this.reportData = data;
         this.currentPage = 1;
       },
-      error: (error) => {
-        console.error('Erro ao gerar relatório:', error);
+      complete: () => {
+        this.loading = false;
       }
     });
   }
