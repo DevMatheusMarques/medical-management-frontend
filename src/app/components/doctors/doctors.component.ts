@@ -64,7 +64,8 @@ export class DoctorsComponent implements OnInit {
       this.specialtyOptions = data.map(spec => ({
         label: spec.name,
         value: spec.id
-      }));
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
     });
   }
 
