@@ -114,6 +114,7 @@ export class AuthComponent implements OnInit {
         this.router.navigate(['/dashboard']);
       },
       error: (error) => {
+        this.isAuthenticating = false;
         this.toastService.showToast(error.error?.message || 'Erro ao autenticar', 'error');
       },
       complete: () => {
