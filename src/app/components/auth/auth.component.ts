@@ -24,6 +24,7 @@ export class AuthComponent implements OnInit {
   loginForm!: FormGroup;
   showPassword: boolean = false;
   rememberMe = false;
+  isAuthenticating = false;
   private apiUrl = `${environment.apiUrl}/api/auth/login`;
 
   constructor(
@@ -64,9 +65,9 @@ export class AuthComponent implements OnInit {
   }
 
   onLogin() {
-    if (this.loginForm.invalid) {
-      return;
-    }
+    if (this.loginForm.invalid) return;
+
+    this.isAuthenticating = true;
 
     const { username, password, rememberMe } = this.loginForm.value;
 
@@ -94,8 +95,8 @@ export class AuthComponent implements OnInit {
       password: loginData.password
     };
 
-    this.http.post<any>(this.apiUrl, requestData).subscribe(
-      response => {
+    this.http.post<any>(this.apiUrl, requestData).subscribe({
+      next: (response) => {
         const token = response.token;
         const refreshToken = response.refreshToken;
 
@@ -112,11 +113,13 @@ export class AuthComponent implements OnInit {
 
         this.router.navigate(['/dashboard']);
       },
-      error => {
-        this.toastService.showToast(error.error?.message, 'error');
-        console.error('Erro ao fazer login:', error);
+      error: (error) => {
+        this.toastService.showToast(error.error?.message || 'Erro ao autenticar', 'error');
+      },
+      complete: () => {
+        this.isAuthenticating = false;
       }
-    );
+    });
   }
 
   // Método para adicionar o token ao cabeçalho
