@@ -136,7 +136,7 @@ export class DoctorsComponent implements OnInit {
 
     this.modalFields = [
       { label: 'Nome', name: 'name', type: 'text', value: doctor.name, placeholder: 'Digite o nome do médico' },
-      { label: 'CRM', name: 'crm', type: 'text', value: doctor.crm, placeholder: 'Digite o CRM do médico' },
+      { label: 'CRM', name: 'crm', type: 'text', value: doctor.crm, placeholder: 'Digite o CRM do médico', disable: true },
       { label: 'Especialidade', name: 'specialtyId', type: 'select', value: doctor.specialty.id, placeholder: 'Selecione a especialidade', options: this.specialtyOptions },
       { label: 'E-mail', name: 'email', type: 'email', value: doctor.email, placeholder: 'Digite o e-mail do médico' },
       { label: 'Celular', name: 'telephone', type: 'tel', value: doctor.telephone, placeholder: 'Digite o telefone do médico' },
