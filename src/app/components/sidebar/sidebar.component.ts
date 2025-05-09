@@ -127,6 +127,8 @@ export class SidebarComponent {
   logout(): void {
     localStorage.removeItem('authUsername');
     localStorage.removeItem('authRole');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('refreshToken');
     this.router.navigate(['']);
   }
 
